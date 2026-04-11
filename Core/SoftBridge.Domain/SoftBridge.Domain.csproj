@@ -14,7 +14,6 @@
 		<PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="10.0.3" />
 	</ItemGroup>
 	<ItemGroup>
-		<Folder Include="Exceptions\NotFoundModels\" />
 		<Folder Include="Models/ServiceAggregates/" />
 	</ItemGroup>
 </Project>

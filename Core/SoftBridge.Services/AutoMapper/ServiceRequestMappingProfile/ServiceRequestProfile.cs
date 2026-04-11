@@ -1,11 +1,10 @@
 using AutoMapper;
-
 using SoftBridge.Domain.Models.OrderAggregates;
 using SoftBridge.Shared.Common.Dto.Review;
 using SoftBridge.Shared.Common.Dto.ServiceRequest;
 
 
-namespace SoftBridge.Services.AutoMapper
+namespace SoftBridge.Services.AutoMapper.ServiceRequestMappingProfile
 {
     public class ServiceRequestProfile: Profile
     {

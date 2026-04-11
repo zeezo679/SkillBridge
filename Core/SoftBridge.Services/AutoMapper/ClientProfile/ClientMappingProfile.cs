@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 using SoftBridge.Services.Resolver;
 
-namespace SoftBridge.Services.AutoMapper
+namespace SoftBridge.Services.AutoMapper.ClientProfile
 {
     public class ClientMappingProfile: Profile
     {
