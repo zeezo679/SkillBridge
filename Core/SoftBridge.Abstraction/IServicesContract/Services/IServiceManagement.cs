@@ -12,7 +12,7 @@ namespace SoftBridge.Abstraction.IServicesContract.Services
     {
         // --- Provider Operations ---
         Task<ServiceDto> CreateServiceAsync(CreateServiceDto createServiceDto, Guid providerId);
-        //Task<ServiceDto> UpdateServiceAsync(Guid serviceId, UpdateServiceDto updateServiceDto, Guid providerId);
+        Task<ServiceDto> UpdateServiceAsync(Guid serviceId, UpdateServiceDto updateServiceDto, Guid providerId);
         //Task<bool> DeleteServiceAsync(Guid serviceId, Guid providerId);
         //Task<Pagination<ServiceDto>> GetProviderServicesAsync(Guid providerId, ServiceQueryParams queryParams);
 

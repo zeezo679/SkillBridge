@@ -13,6 +13,7 @@ using SoftBridge.Domain.Models.EnumHelper;
 using SoftBridge.Domain.Models.ServiceAggregates;
 using SoftBridge.Domain.Models.User;
 using SoftBridge.Services.Specification.ProviderSpecifications;
+using SoftBridge.Services.Specification.ServicesSpecifications;
 using SoftBridge.Shared.Common.Dto.Attachement;
 using SoftBridge.Shared.Common.Dto.Service;
 using System;
@@ -58,7 +59,45 @@ namespace SoftBridge.Services.Services.ServiceManagement
             return _mapper.Map<ServiceDto>(serviceEntity);
         }
 
-        #region Private Helper Methods for creatinf services
+
+        public async Task<ServiceDto> UpdateServiceAsync(Guid serviceId, UpdateServiceDto updateServiceDto, Guid providerId)
+        {
+            // 1.Validate Provider
+            await ValidateProviderAsync(providerId);
+
+            // 2. Get the existing service with its images
+            var serviceRepo = _unitOfWork.GetRepository<Service, Guid>();
+            var spec = new ServiceByIdWithImagesSpec(serviceId);
+            var existingService = await serviceRepo.GetByIdWithSpecAsync(spec);
+
+            // 3. Check existence and ownership
+            if (existingService == null)
+                throw new ServiceNotFoundException($"Service with not found.");
+
+            if (existingService.ProviderId != providerId)
+                throw new UnauthorizedExceptionCusotme();
+            
+            // 4. Validate Category
+            if (existingService.CategoryId != updateServiceDto.CategoryId)
+            {
+                await ValidateCategoryAsync(updateServiceDto.CategoryId);
+            }
+
+            // 5. Map the updated fields onto the EXISTING entity
+            _mapper.Map(updateServiceDto, existingService);
+
+            // 6. Business Rule: Reset Status to Pending
+            existingService.Status = ServiceStatus.Pending;
+
+            // 7. Save changes
+            serviceRepo.Update(existingService);
+            await _unitOfWork.SaveChangesAsync();
+
+            // 8. Return the updated DTO
+            return _mapper.Map<ServiceDto>(existingService);
+        }
+       
+        #region Private Helper Methods for create and update services
         private async Task ValidateProviderAsync(Guid providerId)
         {
             var providerRepo = _unitOfWork.GetRepository<SProvider, Guid>();
@@ -123,5 +162,6 @@ namespace SoftBridge.Services.Services.ServiceManagement
             }
         }
         #endregion
+
     }
 }

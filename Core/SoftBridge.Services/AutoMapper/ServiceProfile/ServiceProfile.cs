@@ -32,5 +32,11 @@ public class ServiceProfile : Profile
         CreateMap<Service, ServiceDetailsDto>()
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
         // the images are mapping from the first CreateMapping in this file
+
+        CreateMap<UpdateServiceDto, Service>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore()) 
+            .ForMember(dest => dest.ProviderId, opt => opt.Ignore()) 
+            .ForMember(dest => dest.Status, opt => opt.Ignore())
+            .ForMember(dest => dest.Images, opt => opt.Ignore());
     }
 }
