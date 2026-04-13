@@ -28,7 +28,7 @@ namespace SoftBridge.Services.Services.ServiceManagement
         IUnitOfWork _unitOfWork,
         IMapper _mapper,
         IAttachmentService _attachmentService,
-        INotificationService _notificationService,
+        //INotificationService _notificationService,
         UserManager<ApplicationUser> _userManager 
         ) : IServiceManagement
     {
@@ -65,35 +65,26 @@ namespace SoftBridge.Services.Services.ServiceManagement
         {
             // 1.Validate Provider
             await ValidateProviderAsync(providerId);
-
             // 2. Get the existing service with its images
             var serviceRepo = _unitOfWork.GetRepository<Service, Guid>();
             var spec = new ServiceByIdWithImagesSpec(serviceId);
             var existingService = await serviceRepo.GetByIdWithSpecAsync(spec);
-
             // 3. Check existence and ownership
             if (existingService == null)
                 throw new ServiceNotFoundException($"Service with not found.");
-
             if (existingService.ProviderId != providerId)
                 throw new UnauthorizedExceptionCusotme();
-            
+
             // 4. Validate Category
             if (existingService.CategoryId != updateServiceDto.CategoryId)
-            {
                 await ValidateCategoryAsync(updateServiceDto.CategoryId);
-            }
-
             // 5. Map the updated fields onto the EXISTING entity
             _mapper.Map(updateServiceDto, existingService);
-
             // 6. Business Rule: Reset Status to Pending
             existingService.Status = ServiceStatus.Pending;
-
             // 7. Save changes
             serviceRepo.Update(existingService);
             await _unitOfWork.SaveChangesAsync();
-
             // 8. Return the updated DTO
             return _mapper.Map<ServiceDto>(existingService);
         }
@@ -152,6 +143,79 @@ namespace SoftBridge.Services.Services.ServiceManagement
                 data
             );
         }
+
+        public async Task<bool> ChangeServiceStatusAsync(Guid serviceId, ServiceStatus status, string? rejectionReason = null)
+        {
+            var serviceRepo = _unitOfWork.GetRepository<Service, Guid>();
+
+            // 1. Get the service with its provider (to get the provider's user id for notification)
+            var spec = new ServiceByIdWithProviderSpec(serviceId);
+            var service = await serviceRepo.GetByIdWithSpecAsync(spec);
+
+            if (service == null)
+                throw new ServiceNotFoundException($"Service not found.");
+            // IF admin tries to set the same status again, just ignore and return true (idempotent)
+            if (service.Status == status)
+                return true;
+            // Business Rules
+            if (status == ServiceStatus.Rejected && string.IsNullOrWhiteSpace(rejectionReason))
+                throw new BadRequestExceptionCustome("Rejection reason is required when rejecting a service.");
+
+            service.Status = status;
+            if (status == ServiceStatus.Rejected)
+                service.RejectionReason = rejectionReason;
+            else
+                service.RejectionReason = null;
+
+            serviceRepo.Update(service);
+            var result = await _unitOfWork.SaveChangesAsync() > 0;
+            if (result)
+                await NotifyProviderAboutServiceStatusAsync(service);
+            return result;
+        }
+
+        public async Task<ServiceDetailsDto> GetServiceDetailsByIdAsync(Guid serviceId)
+        {
+            var serviceRepo = _unitOfWork.GetRepository<Service, Guid>();
+
+            var spec = new ServiceDetailsByIdSpec(serviceId);
+            var service = await serviceRepo.GetByIdWithSpecAsync(spec);
+
+            if (service == null)
+                throw new ServiceNotFoundException($"Service not found.");
+
+            return _mapper.Map<ServiceDetailsDto>(service);
+        }
+
+        public async Task<bool> DeleteServiceAsync(Guid serviceId, Guid providerId)
+        {
+            var serviceRepo = _unitOfWork.GetRepository<Service, Guid>();
+
+            var spec = new ServiceForDeletionSpec(serviceId);
+            var service = await serviceRepo.GetByIdWithSpecAsync(spec);
+
+            if (service == null)
+                throw new ServiceNotFoundException($"Service not found.");
+
+            if (service.ProviderId != providerId)
+                throw new UnauthorizedExceptionCusotme();
+
+            var hasActiveRequests = service.ServiceRequests.Any(req =>
+                req.Status == RequestStatus.Pending ||
+                req.Status == RequestStatus.Accepted);
+
+            if (hasActiveRequests)
+                throw new BadRequestExceptionCustome("Cannot delete this service because there are active requests from clients. You must complete or cancel them first.");
+
+            // delete images from storage (Helper Method)
+            if (service.Images != null && service.Images.Any())
+                foreach (var image in service.Images)
+                    await _attachmentService.DeleteFileAsync(image.ImageUrl);
+
+            serviceRepo.Delete(service);
+            return await _unitOfWork.SaveChangesAsync() > 0;
+        }
+
         #region Private Helper Methods for create and update services
         private async Task ValidateProviderAsync(Guid providerId)
         {
@@ -215,6 +279,29 @@ namespace SoftBridge.Services.Services.ServiceManagement
             {
                 // send notification and email
             }
+        }
+        private async Task NotifyProviderAboutServiceStatusAsync(Service service)
+        {
+            string title = string.Empty;
+            string body = string.Empty;
+
+            if (service.Status == ServiceStatus.Approved)
+            {
+                title = "Service Approved! 🎉";
+                body = $"Congratulations! Your service '{service.Title}' has been approved and is now live for clients.";
+            }
+            else if (service.Status == ServiceStatus.Rejected)
+            {
+                title = "Service Rejected ⚠️";
+                body = $"Your service '{service.Title}' requires modifications. Reason: {service.RejectionReason}";
+            }
+            else
+            {
+                // if the status is pending or any other status, we might choose not to send a notification
+                return;
+            }
+
+            // Notification
         }
         #endregion
 

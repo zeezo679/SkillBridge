@@ -1,4 +1,5 @@
 ﻿using E_commerce.Shared.Common.Dto.Service;
+using SoftBridge.Domain.Models.EnumHelper;
 using SoftBridge.Shared.Common.Dto.Service;
 using SoftBridge.Shared.Common.Pagination;
 using SoftBridge.Shared.Common.Params.Service;
@@ -15,17 +16,17 @@ namespace SoftBridge.Abstraction.IServicesContract.Services
         // --- Provider Operations ---
         Task<ServiceDto> CreateServiceAsync(CreateServiceDto createServiceDto, Guid providerId);
         Task<ServiceDto> UpdateServiceAsync(Guid serviceId, UpdateServiceDto updateServiceDto, Guid providerId);
-        //Task<bool> DeleteServiceAsync(Guid serviceId, Guid providerId);
+        Task<bool> DeleteServiceAsync(Guid serviceId, Guid providerId);
         Task<PaginationResponse<ServiceDto>>GetProviderServicesAsync(Guid providerId, ServiceQueryParams queryParams);
 
         // --- Shared (Admin & Client) Operations ---
         // Retrieves services based on filters. 
         // Clients will filter by Status=Approved. Admins can filter by Status=Pending to review.
         Task<PaginationResponse<ServiceDto>> GetAllServicesAsync(ServiceQueryParams queryParams);
-        //Task<ServiceDetailsDto> GetServiceDetailsByIdAsync(Guid serviceId);
+        Task<ServiceDetailsDto> GetServiceDetailsByIdAsync(Guid serviceId);
 
         // --- Admin Operations ---
-        //Task<bool> ChangeServiceStatusAsync(Guid serviceId, ServiceStatus status, string? rejectionReason = null);
+        Task<bool> ChangeServiceStatusAsync(Guid serviceId, ServiceStatus status, string? rejectionReason = null);
     }
 }
 
