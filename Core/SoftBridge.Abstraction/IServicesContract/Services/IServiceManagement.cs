@@ -1,5 +1,7 @@
 ﻿using E_commerce.Shared.Common.Dto.Service;
 using SoftBridge.Shared.Common.Dto.Service;
+using SoftBridge.Shared.Common.Pagination;
+using SoftBridge.Shared.Common.Params.Service;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,7 +16,7 @@ namespace SoftBridge.Abstraction.IServicesContract.Services
         Task<ServiceDto> CreateServiceAsync(CreateServiceDto createServiceDto, Guid providerId);
         Task<ServiceDto> UpdateServiceAsync(Guid serviceId, UpdateServiceDto updateServiceDto, Guid providerId);
         //Task<bool> DeleteServiceAsync(Guid serviceId, Guid providerId);
-        //Task<Pagination<ServiceDto>> GetProviderServicesAsync(Guid providerId, ServiceQueryParams queryParams);
+        Task<PaginationResponse<ServiceDto>>GetProviderServicesAsync(Guid providerId, ServiceQueryParams queryParams);
 
         // --- Shared (Admin & Client) Operations ---
         // Retrieves services based on filters. 
@@ -36,7 +38,6 @@ public class ServiceQueryParams : BaseQueryParams
     public int? CategoryId { get; set; } // Filter by Category
     public decimal? MinPrice { get; set; }
     public decimal? MaxPrice { get; set; }
-    public float? MinRating { get; set; } // e.g., show services with 4+ stars
     public ServiceStatus? Status { get; set; } // Pending, Approved, Rejected
 }
 */
