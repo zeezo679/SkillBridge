@@ -16,6 +16,5 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Folder Include="Services/CategoryImplementation/" />
-		<Folder Include="Specification\" />
 	</ItemGroup>
 </Project>
