@@ -20,34 +20,6 @@ namespace SoftBridge.Services.AutoMapper.ProviderProfile
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.User.Email))
                 .ForMember(dest => dest.ProfileImageUrl, opt => opt.MapFrom<PictureUrlResolver<SProvider, ProviderProfileDto>, string>(src => src.ProfileImageUrl))
                 .ForMember(dest => dest.AccountStatus, opt => opt.MapFrom(src => src.Status.ToString()));
-
-
-            CreateMap<Service, ServiceWithProviderDto>()
-                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
-                .ForMember(dest => dest.ImageUrls, opt => opt.MapFrom(src => src.Images
-                            .OrderBy(i => i.DisplayOrder)
-                            .Select(i => i.ImageUrl)
-                            .ToList()));
-
-
-            CreateMap<ServiceRequest, IncomingRequestDto>()
-            .ForMember(dest => dest.ServiceTitle,
-                       opt => opt.MapFrom(src => src.Service.Title))
-            .ForMember(dest => dest.ClientName, 
-                       opt => opt.MapFrom(src => src.Client.User.FullName))
-            .ForMember(dest => dest.Status,     
-                       opt => opt.MapFrom(src => src.Status.ToString()));
-
-
-            CreateMap<Review, ReceivedReviewDto>()
-            .ForMember(dest => dest.ClientName,
-                       opt => opt.MapFrom(src => src.Client.User.FullName))
-            .ForMember(dest => dest.ServiceTitle,
-                       opt => opt.MapFrom(src => src.ServiceRequest.Service.Title));
-
-
-
         }
     }
 }

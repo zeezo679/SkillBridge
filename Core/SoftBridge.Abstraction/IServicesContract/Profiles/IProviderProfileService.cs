@@ -19,23 +19,5 @@ namespace SoftBridge.Abstraction.IServices.Profiles
         Task<ProviderProfileDto> UpdateProfileAsync(string userId, UpdateProviderProfileDto updateDto);
         Task DeleteAccountAsync(string userId);
         #endregion
-
-        #region Manage Services
-        Task<IReadOnlyList<ServiceWithProviderDto>> GetMyServicesAsync(string userId);
-        Task<ServiceWithProviderDto> AddServiceAsync(string userId, AddServiceWithProviderDto dto);
-        Task<ServiceWithProviderDto> UpdateServiceAsync(string userId, Guid serviceId, UpdateServiceWithProviderDto dto);
-        Task DeleteServiceAsync(string userId, Guid serviceId);
-        #endregion
-
-        #region Manage Requests
-        Task<IReadOnlyList<IncomingRequestDto>> GetIncomingRequestsAsync(string userId, RequestStatus? status);
-        Task<IncomingRequestDto> RespondToRequestAsync(string userId, Guid requestId, RespondToRequestDto dto);
-        Task<IncomingRequestDto> AcceptRequestAsync(string userId, Guid requestId, RespondToRequestDto dto);
-        Task<IncomingRequestDto> RejectRequestAsync(string userId, Guid requestId, RespondToRequestDto dto);
-        #endregion
-
-        #region Manage Reviews
-        Task<IReadOnlyList<ReceivedReviewDto>> GetMyReviewsAsync(string userId);
-        #endregion
     }
 }
