@@ -1,11 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using SoftBridge.Domain.Models;
 using SoftBridge.Domain.Models.User;
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 
 namespace SoftBridge.Persistence
 {

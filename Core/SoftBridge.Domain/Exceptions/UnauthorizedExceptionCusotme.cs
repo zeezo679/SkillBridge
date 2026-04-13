@@ -4,8 +4,8 @@ using System.Text;
 
 namespace SoftBridge.Domain.Exceptions
 {
-    public class UnauthorizedExceptionCusotme() 
-        : Exception("Invalid Operation") 
+    public class UnauthorizedExceptionCusotme(string message = "Invalid Operation") 
+        : Exception(message) 
     {
     }
 }
