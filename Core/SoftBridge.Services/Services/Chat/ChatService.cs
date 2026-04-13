@@ -17,41 +17,22 @@ namespace SoftBridge.Services.Services.Chat;
 public class ChatService(IUnitOfWork unitOfWork, IMapper mapper) : IChatService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
-        private readonly IMapper _mapper = mapper;
+    private readonly IMapper _mapper = mapper;
 
     public async Task<MessageDto> SaveMessageAsync(string senderId, SendMessageDto sendMessageDto)
     {
-        var serviceRequestRepo = _unitOfWork.GetRepository<ServiceRequest, Guid>();
-        
-        var requestId = sendMessageDto.RequestId;
+        var request = await GetValidatedRequestAsync(sendMessageDto.RequestId, senderId);
 
-        //to include client and provider in the same query to avoid multiple queries to check if the sender is either of them
-        var serviceRequestSpec = new ServiceRequestByIdSpecification(requestId);
-
-        var request = await serviceRequestRepo.GetByIdWithSpecAsync(serviceRequestSpec);
-
-        if (request is null)
-            throw new ServiceRequestNotFoundException("Service request not found");
-
-        var isParticipant = request.Client.UserId == senderId 
-                        || request.Provider.UserId == senderId;
-
-        if(!isParticipant)
-            throw new UnauthorizedExceptionCusotme("You are not part of this chat");
-
-        var isAccepted = request.Status == RequestStatus.Accepted;
-
-        if (!isAccepted)
-            throw new BadRequestExceptionCustome("You can only chat on accepted requests");
+        var receiverId = request.Client.UserId == senderId
+                ? request.Provider.UserId 
+                : request.Client.UserId;
 
         var message = new Message 
         {
             Id = Guid.NewGuid(), //not harmful
-            RequestId = requestId,  
+            RequestId = sendMessageDto.RequestId,  
             SenderId = senderId,
-            ReceiverId = request.Client.UserId == senderId
-                ? request.Provider.UserId 
-                : request.Client.UserId,
+            ReceiverId = receiverId,
             Content = sendMessageDto.Content,
             SentAt = DateTime.UtcNow,
             IsRead = false
@@ -76,24 +57,7 @@ public class ChatService(IUnitOfWork unitOfWork, IMapper mapper) : IChatService
 
     public async Task<PaginationResponse<MessageDto>> GetChatHistoryAsync(string senderId, Guid requestId, BaseQueryParams queryParams)
     {
-        var serviceRequestRepo = _unitOfWork.GetRepository<ServiceRequest, Guid>();
-        var serviceRequestSpec = new ServiceRequestByIdSpecification(requestId);
-
-        var request = await serviceRequestRepo.GetByIdWithSpecAsync(serviceRequestSpec);
-
-
-        if (request is null)
-            throw new ServiceRequestNotFoundException("Service request not found");
-
-        var isParticipant = request.Client.UserId == senderId 
-                        || request.Provider.UserId == senderId;
-        
-        if (!isParticipant)
-            throw new UnauthorizedExceptionCusotme("You are not part of this chat");
-        
-        if (request.Status != RequestStatus.Accepted)
-            throw new BadRequestExceptionCustome("You can only view chat history of accepted requests");
-
+        var request = await GetValidatedRequestAsync(requestId, senderId);
 
         var messageRepo = _unitOfWork.GetRepository<Message, Guid>();
 
@@ -110,19 +74,7 @@ public class ChatService(IUnitOfWork unitOfWork, IMapper mapper) : IChatService
 
     public async Task MarkMessagesAsReadAsync(Guid requestId, string receiverId)
     {
-        var serviceRequestRepo = _unitOfWork.GetRepository<ServiceRequest, Guid>();
-        var serviceRequestSpec = new ServiceRequestByIdSpecification(requestId);
-
-        var request = await serviceRequestRepo.GetByIdWithSpecAsync(serviceRequestSpec);
-
-        if (request is null)
-            throw new ServiceRequestNotFoundException("Service request not found");
-        
-        var isParticipant = request.Client.UserId == receiverId
-                        || request.Provider.UserId == receiverId;
-        
-        if (!isParticipant)
-            throw new UnauthorizedExceptionCusotme("You are not part of this chat");
+        var request = await GetValidatedRequestAsync(requestId, receiverId);
 
         var messageRepo = _unitOfWork.GetRepository<Message, Guid>();
         var unreadMessagesSpec = new UnreadMessagesSpec(requestId, receiverId);
@@ -160,6 +112,27 @@ public class ChatService(IUnitOfWork unitOfWork, IMapper mapper) : IChatService
         });
 
         return inbox.ToList();
+    }
+
+    private async Task<ServiceRequest> GetValidatedRequestAsync(Guid requestId, string userId)
+    {
+        var serviceRequestRepo = _unitOfWork.GetRepository<ServiceRequest, Guid>();
+        var request = await serviceRequestRepo.GetByIdWithSpecAsync(
+            new ServiceRequestByIdSpecification(requestId));
+
+        if (request is null)
+            throw new ServiceRequestNotFoundException("Service request not found");
+
+        if (request.Status != RequestStatus.Accepted)
+            throw new BadRequestExceptionCustome("You can only view chat history of accepted requests");
+
+        var isParticipant = request.Client.UserId == userId
+                        || request.Provider.UserId == userId;
+
+        if (!isParticipant)
+            throw new UnauthorizedExceptionCusotme("You are not part of this chat");
+
+        return request;
     }
     
 }
