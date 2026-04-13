@@ -14,6 +14,7 @@ namespace SoftBridge.Services.Specification.ServicesSpecifications
             AddInclude(s => s.Images);
             AddInclude(s => s.Category);
             AddInclude(s => s.Provider);
+            AddInclude("Provider.User");
         }
     }
 }
