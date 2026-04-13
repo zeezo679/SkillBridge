@@ -1,4 +1,3 @@
-using E_commerce.Shared.Common.Dto.Service;
 using System;
 
 namespace SoftBridge.Shared.Common.Dto.Service;

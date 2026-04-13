@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace E_commerce.Shared.Common.Dto.Service
+namespace SoftBridge.Shared.Common.Dto.Service
 {
     public class CreateServiceDto
     {
