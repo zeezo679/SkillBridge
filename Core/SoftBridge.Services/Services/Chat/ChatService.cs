@@ -57,7 +57,7 @@ public class ChatService(IUnitOfWork unitOfWork, IMapper mapper) : IChatService
 
     public async Task<PaginationResponse<MessageDto>> GetChatHistoryAsync(string senderId, Guid requestId, BaseQueryParams queryParams)
     {
-        var request = await GetValidatedRequestAsync(requestId, senderId);
+        _ = await GetValidatedRequestAsync(requestId, senderId);
 
         var messageRepo = _unitOfWork.GetRepository<Message, Guid>();
 
@@ -74,7 +74,7 @@ public class ChatService(IUnitOfWork unitOfWork, IMapper mapper) : IChatService
 
     public async Task MarkMessagesAsReadAsync(Guid requestId, string receiverId)
     {
-        var request = await GetValidatedRequestAsync(requestId, receiverId);
+        _ = await GetValidatedRequestAsync(requestId, receiverId);
 
         var messageRepo = _unitOfWork.GetRepository<Message, Guid>();
         var unreadMessagesSpec = new UnreadMessagesSpec(requestId, receiverId);
@@ -93,7 +93,6 @@ public class ChatService(IUnitOfWork unitOfWork, IMapper mapper) : IChatService
         var serviceRequestWithChatsSpec = new ChatInboxSpec(userId);
 
         var serviceRequests = await serviceRequestRepo.GetAllWithSpecAsync(serviceRequestWithChatsSpec);
-
 
         var inbox = serviceRequests.Select(sr => 
         {
