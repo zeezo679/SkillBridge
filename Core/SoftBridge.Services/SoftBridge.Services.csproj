@@ -15,7 +15,10 @@
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.16.0" />
 	</ItemGroup>
 	<ItemGroup>
+		<Folder Include="AutoMapper/ChatProfile/" />
 		<Folder Include="Services/CategoryImplementation/" />
+		<Folder Include="Services/Chat/" />
+		<Folder Include="Specification/ChatSpecifications/" />
 		<Folder Include="Specification\" />
 	</ItemGroup>
 </Project>

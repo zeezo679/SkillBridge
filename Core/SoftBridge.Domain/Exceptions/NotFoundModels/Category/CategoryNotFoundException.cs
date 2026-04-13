@@ -1,6 +1,6 @@
 using System;
 
-namespace SoftBridge.Domain.Exceptions.NotFoundModels;
+namespace SoftBridge.Domain.Exceptions.NotFoundModels.Category;
 
 public class CategoryNotFoundException : NotFoundExceptionCustome
 {

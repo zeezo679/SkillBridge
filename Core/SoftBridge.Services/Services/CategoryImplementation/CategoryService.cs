@@ -1,15 +1,14 @@
-using System;
 using AutoMapper;
 using SoftBridge.Abstraction.IServices.Category;
 using SoftBridge.Domain.Contracts.UnitOfWorkPattern;
-using SoftBridge.Domain.Exceptions;
 using SoftBridge.Domain.Models.ServiceAggregates;
 using SoftBridge.Shared.Common.Dto.Category;
 using SoftBridge.Shared.Common.Pagination;
 using SoftBridge.Shared.Common.Params.Category;
 using SoftBridge.Services.Specification.CategorySpecifications.GetAllCategoriesAsync;
 using SoftBridge.Services.Specification.CategorySpecifications.GetCategoryByIdAsync;
-using SoftBridge.Domain.Exceptions.NotFoundModels;
+using SoftBridge.Domain.Exceptions.NotFoundModels.Category;
+using SoftBridge.Domain.Exceptions;
 
 namespace SoftBridge.Services.Services.CategoryImplementation;
 
