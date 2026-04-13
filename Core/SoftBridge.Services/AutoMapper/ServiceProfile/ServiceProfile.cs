@@ -32,7 +32,7 @@ public class ServiceProfile : Profile
         CreateMap<Service, ServiceDetailsDto>()
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
             .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
-            .ForMember(dest => dest.ProviderName, opt => opt.MapFrom(src => src.Provider.User.FullName));
+            .ForMember(dest => dest.ProviderName, opt => opt.MapFrom(src => src.Provider?.User?.FullName ?? string.Empty));
         // the images are mapping from the first CreateMapping in this file
 
         CreateMap<UpdateServiceDto, Service>()
