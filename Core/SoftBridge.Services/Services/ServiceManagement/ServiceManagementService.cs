@@ -125,6 +125,33 @@ namespace SoftBridge.Services.Services.ServiceManagement
             );
         }
 
+        public async Task<PaginationResponse<ServiceDto>> GetAllServicesAsync(ServiceQueryParams queryParams)
+        {
+            // to sure that the all services returned was approved
+            queryParams.Status = ServiceStatus.Approved;
+
+            var serviceRepo = _unitOfWork.GetRepository<Service, Guid>();
+
+            // 1.spec for data
+            var dataSpec = new ServiceWithFiltersSpec(queryParams);
+            // spec for count
+            var countSpec = new ServiceCountSpec(queryParams);
+
+            //2- get from db
+            var services = await serviceRepo.GetAllWithSpecAsync(dataSpec);
+            var totalItems = await serviceRepo.GetCountAsync(countSpec);
+
+            // 3. mapper
+            var data = _mapper.Map<IReadOnlyList<ServiceDto>>(services);
+
+            // 4.  Pagination
+            return new PaginationResponse<ServiceDto>(
+                queryParams.PageIndex,
+                queryParams.PageSize,
+                totalItems,
+                data
+            );
+        }
         #region Private Helper Methods for create and update services
         private async Task ValidateProviderAsync(Guid providerId)
         {
@@ -189,7 +216,6 @@ namespace SoftBridge.Services.Services.ServiceManagement
                 // send notification and email
             }
         }
-
         #endregion
 
     }

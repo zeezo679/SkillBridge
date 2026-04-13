@@ -21,7 +21,7 @@ namespace SoftBridge.Abstraction.IServicesContract.Services
         // --- Shared (Admin & Client) Operations ---
         // Retrieves services based on filters. 
         // Clients will filter by Status=Approved. Admins can filter by Status=Pending to review.
-        //Task<Pagination<ServiceDto>> GetAllServicesAsync(ServiceQueryParams queryParams); 
+        Task<PaginationResponse<ServiceDto>> GetAllServicesAsync(ServiceQueryParams queryParams);
         //Task<ServiceDetailsDto> GetServiceDetailsByIdAsync(Guid serviceId);
 
         // --- Admin Operations ---
