@@ -7,12 +7,11 @@ using System.Text;
 
 namespace SoftBridge.Services.Specification.ReviewSpecifications
 {
-    public class ReviewByRequestIdSpec: BaseSpecifications<Review, Guid>
+    public class ReviewsByClientIdSpec: BaseSpecifications<Review, Guid>
     {
-        public ReviewByRequestIdSpec(Guid requestId)
-            :base(r => r.RequestId == requestId && !r.IsDeleted)
+        public ReviewsByClientIdSpec(Guid clientId)
+            :base(r => r.ClientId == clientId && !r.IsDeleted)
         {
-
             AddInclude(r => r.Provider);
             var providerUser = $"{nameof(Review.Provider)}.{nameof(SProvider.User)}";
             IncludeStrings.Add(providerUser);

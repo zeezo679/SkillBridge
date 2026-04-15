@@ -1,4 +1,5 @@
-﻿using SoftBridge.Shared.Common.Dto.Review;
+﻿using E_commerce.Shared.Common.Dto.Review;
+using SoftBridge.Shared.Common.Dto.Review;
 using SoftBridge.Shared.Common.Params;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,25 @@ namespace SoftBridge.Abstraction.IServicesContract.Review
 
         //Task<bool> DeleteReviewAsync(Guid reviewId, Guid userId); // Admin or the Client who wrote it
 
-        Task<ReviewDto> AddReviewAsync(Guid clientId, AddReviewDto dto);
+
+
+        // client submits a review after a completed request
+        Task<ReviewDto> AddReviewAsync(string userId, AddReviewDto dto);
+
+        // client updates their own review
+        Task<ReviewDto> UpdateReviewAsync(string userId, Guid reviewId, UpdateReviewDto dto);
+
+        // client deletes their own review
+        Task DeleteReviewAsync(string userId, Guid reviewId);
+
+        // get a single review by its id — public
+        Task<ReviewDto> GetReviewByIdAsync(Guid reviewId);
+
+        // all reviews written by this client
+        Task<IReadOnlyList<ReviewDto>> GetMyReviewsAsync(string userId);
+
+        // all reviews for a specific service
+        Task<IReadOnlyList<ReviewDto>> GetReviewsByServiceAsync(Guid serviceId);
     }
 }
 
