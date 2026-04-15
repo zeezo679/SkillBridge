@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SoftBridge.Domain.Exceptions.NotFoundModels
 {
-    public class ProviderNotFoundException(string msg) : NotFoundExceptionCustome(msg)
+    public class ServiceNotFoundException(string message) : NotFoundExceptionCustome(message)
     {
     }
 }

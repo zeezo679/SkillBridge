@@ -6,7 +6,7 @@ namespace SoftBridge.Shared.Common.Params
         private const int MaxPageSize = 20;
         private int _pageSize = 6;
 
-        public int _pageIndex;
+        private int _pageIndex = 1;
         public int PageIndex
         {
             get => _pageIndex;

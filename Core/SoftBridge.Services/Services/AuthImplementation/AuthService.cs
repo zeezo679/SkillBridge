@@ -9,9 +9,6 @@ using SoftBridge.Domain.Models.User;
 using SoftBridge.Shared.Dto_s.Auth.ForgetPssword;
 using SoftBridge.Shared.Dto_s.Auth.Sign_In_Up;
 using SoftBridge.Shared.Dto_s.Token;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SoftBridge.Services.Services.AuthImplementation
 {

@@ -1,4 +1,9 @@
-﻿using System;
+﻿using E_commerce.Shared.Common.Dto.Service;
+using SoftBridge.Domain.Models.EnumHelper;
+using SoftBridge.Shared.Common.Dto.Service;
+using SoftBridge.Shared.Common.Pagination;
+using SoftBridge.Shared.Common.Params.Service;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -9,19 +14,19 @@ namespace SoftBridge.Abstraction.IServicesContract.Services
     public interface IServiceManagement
     {
         // --- Provider Operations ---
-        //Task<ServiceDto> CreateServiceAsync(CreateServiceDto createServiceDto, Guid providerId);
-        //Task<ServiceDto> UpdateServiceAsync(Guid serviceId, UpdateServiceDto updateServiceDto, Guid providerId);
-        //Task<bool> DeleteServiceAsync(Guid serviceId, Guid providerId);
-        //Task<Pagination<ServiceDto>> GetProviderServicesAsync(Guid providerId, ServiceQueryParams queryParams);
+        Task<ServiceDto> CreateServiceAsync(CreateServiceDto createServiceDto, Guid providerId);
+        Task<ServiceDto> UpdateServiceAsync(Guid serviceId, UpdateServiceDto updateServiceDto, Guid providerId);
+        Task<bool> DeleteServiceAsync(Guid serviceId, Guid providerId);
+        Task<PaginationResponse<ServiceDto>>GetProviderServicesAsync(Guid providerId, ServiceQueryParams queryParams);
 
         // --- Shared (Admin & Client) Operations ---
         // Retrieves services based on filters. 
         // Clients will filter by Status=Approved. Admins can filter by Status=Pending to review.
-        //Task<Pagination<ServiceDto>> GetAllServicesAsync(ServiceQueryParams queryParams); 
-        //Task<ServiceDetailsDto> GetServiceDetailsByIdAsync(Guid serviceId);
+        Task<PaginationResponse<ServiceDto>> GetAllServicesAsync(ServiceQueryParams queryParams);
+        Task<ServiceDetailsDto> GetServiceDetailsByIdAsync(Guid serviceId);
 
         // --- Admin Operations ---
-        //Task<bool> ChangeServiceStatusAsync(Guid serviceId, ServiceStatus status, string? rejectionReason = null);
+        Task<bool> ChangeServiceStatusAsync(Guid serviceId, ServiceStatus status, string? rejectionReason = null);
     }
 }
 
@@ -34,7 +39,6 @@ public class ServiceQueryParams : BaseQueryParams
     public int? CategoryId { get; set; } // Filter by Category
     public decimal? MinPrice { get; set; }
     public decimal? MaxPrice { get; set; }
-    public float? MinRating { get; set; } // e.g., show services with 4+ stars
     public ServiceStatus? Status { get; set; } // Pending, Approved, Rejected
 }
 */
