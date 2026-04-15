@@ -12,6 +12,8 @@ namespace SoftBridge.Shared.Common.Dto.Review
         public string ServiceTitle { get; set; } = string.Empty;
         public Guid ProviderId { get; set; }
         public string ProviderName { get; set; } = string.Empty;
+        public Guid ClientId { get; set; }
+        public string ClientName { get; set; } = string.Empty;
         public byte Rating { get; set; }
         public string? Comment { get; set; }
         public DateTime CreatedAt { get; set; }
