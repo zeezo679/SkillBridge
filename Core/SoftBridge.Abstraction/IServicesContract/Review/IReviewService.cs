@@ -36,6 +36,8 @@ namespace SoftBridge.Abstraction.IServicesContract.Review
 
         // all reviews for a specific service
         Task<IReadOnlyList<ReviewDto>> GetReviewsByServiceAsync(Guid serviceId);
+        Task<IReadOnlyList<ReviewDto>> GetReviewsByProviderAsync(Guid providerId);
+
     }
 }
 
