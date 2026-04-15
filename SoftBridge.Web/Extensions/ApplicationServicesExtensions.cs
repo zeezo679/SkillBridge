@@ -2,8 +2,15 @@
 
 using SoftBridge.Abstraction.IServices.Attachement;
 using SoftBridge.Abstraction.IServices.Auth;
+using SoftBridge.Abstraction.IServicesContract.Notification;
+using SoftBridge.Abstraction.IServicesContract.Services;
+using SoftBridge.Services.Resolver;
 using SoftBridge.Services.Services;
 using SoftBridge.Services.Services.AuthImplementation;
+using SoftBridge.Services.Services.NotificationImplementation;
+using SoftBridge.Services.Services.NotificationImplementation.StrategyPattern;
+using SoftBridge.Services.Services.ServiceManagement;
+using SoftBridge.Shared.Common.Dto.Notification.Settings;
 
 namespace SoftBridge.Web.Extensions
 {
@@ -12,12 +19,23 @@ namespace SoftBridge.Web.Extensions
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
             // 1. Settings
-            //services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+            services.Configure<EmailSettingsDto>(configuration.GetSection("EmailSettings"));
+
+            // 2. (Strategy Pattern)
+            services.AddScoped<INotificationStrategy, EmailNotificationStrategy>();
+            services.AddScoped<INotificationStrategy, PushedNotificationStrategy>();
+            // Notification Hubs
+            services.AddScoped<IWebNotificationPusher, WebNotificationPusher>();
 
             //3.Services
-            //services.AddScoped<I[Name]Service, [Name]Service>();
             services.AddScoped<IAttachmentService, AttachmentService>();
+            services.AddScoped<IServiceManagement, ServiceManagementService>();
             services.AddScoped<IAuthService, AuthService>();
+
+            // 4. transient services : because they are used in resolvers and we want a new instance each time
+            // and the class is too small to be scoped or singleton it take string and return string so it is better to be transient
+            services.AddTransient(typeof(PictureUrlResolver<,>));
+
 
             return services;
         }
