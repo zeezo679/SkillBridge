@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SoftBridge.Domain.Exceptions
+namespace SoftBridge.Domain.Exceptions.NotFoundModels
 {
-    public class ReviewBadRequestException : BadRequestExceptionCustome
+    internal class ReviewBadRequestException : BadRequestExceptionCustome
     {
         public ReviewBadRequestException(string message, IEnumerable<string>? errors = null) : base(message, errors)
         {
