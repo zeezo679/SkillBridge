@@ -1,6 +1,7 @@
-﻿using SoftBridge.Shared.Common.Dto.Notification;
-using SoftBridge.Domain.Models.EnumHelper;
+﻿using SoftBridge.Domain.Models.EnumHelper;
+using SoftBridge.Shared.Common.Dto.Notification;
 using SoftBridge.Shared.Common.Pagination;
+using SoftBridge.Shared.Common.Params.Notification;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,9 +16,9 @@ namespace SoftBridge.Abstraction.IServicesContract.Notification
         Task SendNotificationAsync(NotificationContentDto message, NotificationType type);
 
         // --- User/Client Operations (The Bell Icon) ---
-        Task<PaginationResponse<NotificationContentDto>> GetUserNotificationsAsync(Guid userId);
-        Task<bool> MarkAsReadAsync(Guid notificationId, Guid userId);
-        Task<bool> MarkAllAsReadAsync(Guid userId);
+        Task<PaginationResponse<NotificationDto>> GetUserNotificationsAsync(string userId, NotificationQueryParams queryParams);
+        Task<bool> MarkAsReadAsync(Guid notificationId, string userId);
+        Task<bool> MarkAllAsReadAsync(string userId);
 
     }
 }

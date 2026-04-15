@@ -31,6 +31,7 @@ namespace SoftBridge.Web.Extensions
             services.AddScoped<IAttachmentService, AttachmentService>();
             services.AddScoped<IServiceManagement, ServiceManagementService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<INotificationService, NotificationService>();
 
             // 4. transient services : because they are used in resolvers and we want a new instance each time
             // and the class is too small to be scoped or singleton it take string and return string so it is better to be transient
