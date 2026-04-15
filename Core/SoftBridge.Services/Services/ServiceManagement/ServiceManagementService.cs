@@ -8,6 +8,7 @@ using SoftBridge.Abstraction.IServicesContract.Services;
 using SoftBridge.Domain.Contracts.UnitOfWorkPattern;
 using SoftBridge.Domain.Exceptions;
 using SoftBridge.Domain.Exceptions.NotFoundModels;
+using SoftBridge.Domain.Exceptions.NotFoundModels.Category;
 using SoftBridge.Domain.Models.AccountAggregates;
 using SoftBridge.Domain.Models.EnumHelper;
 using SoftBridge.Domain.Models.ServiceAggregates;

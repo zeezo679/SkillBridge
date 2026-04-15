@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using SoftBridge.Shared.Common.Dto.Service;
 
 namespace E_commerce.Shared.Common.Dto.Service
 {
