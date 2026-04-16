@@ -1,21 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using SoftBridge.Shared.Common.Dto.Client;
+using SoftBridge.Shared.Common.Dto.ServiceProvider;
+using SoftBridge.Shared.Common.Pagination;
+using SoftBridge.Shared.Common.Params.Admin;
 
 namespace SoftBridge.Abstraction.IServices.Profiles
 {
-    // This interface defines the contract for Admin-specific operations.
-    // Primarily focuses on managing users (Providers and Clients) and their statuses.
     public interface IAdminService
     {
-        // Retrieves all service providers with filtering (Status, SearchTerm, etc.)
-        //Task<Pagination<ProviderProfileDto>> GetAllProvidersAsync(ProviderQueryParams queryParams);
+        /// <summary>
+        /// Gets all service providers with filtering options.
+        /// </summary>
+        /// <param name="queryParams">The query parameters for filtering and pagination.</param>
+        /// <returns>A paginated list of provider profiles.</returns>
+        Task<PaginationResponse<ProviderProfileDto>> GetAllProvidersAsync(ProviderQueryParams queryParams);
 
         // Retrieves all clients with filtering (SearchTerm, Active/Inactive)
-        //Task<Pagination<ClientProfileDto>> GetAllClientsAsync(ClientQueryParams queryParams);
+        /// <summary>
+        /// Gets all clients with filtering options.
+        /// </summary>
+        /// <param name="queryParams">The query parameters for filtering and pagination.</param>
+        /// <returns>A paginated list of client profiles.</returns>
+        Task<PaginationResponse<ClientProfileDto>> GetAllClientsAsync(ClientQueryParams queryParams);
 
-        //Task<bool> ApproveProviderAsync(Guid providerId, Guid adminId);
-        //Task<bool> RejectProviderAsync(Guid providerId, Guid adminId, string reason);
+        /// <summary>
+        /// Approves a service provider's account, changing their status to "Approved".
+        /// </summary>
+        /// <param name="providerId"></param>
+        /// <param name="adminId"></param>
+        /// <returns></returns>
+        Task ApproveProviderAsync(string providerId, string adminId);
+    
+        /// <summary>
+        /// Rejects a service provider's account, changing their status to "Rejected" and providing
+        /// a reason for the rejection.
+        /// </summary>
+        Task RejectProviderAsync(string providerId, string adminId);
     }
 }
 

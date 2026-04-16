@@ -3,9 +3,12 @@ using Microsoft.Extensions.DependencyInjection;
 using SoftBridge.Services.AutoMapper.AuthMapping;
 using SoftBridge.Services.AutoMapper.ClientProfile;
 using SoftBridge.Services.AutoMapper.ProviderProfile;
+using SoftBridge.Services.AutoMapper.ServiceProfile;
+using SoftBridge.Services.AutoMapper.ChatProfile;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using SoftBridge.Services.AutoMapper.CategoryProfile;
 
 namespace SoftBridge.Services.AutoMapper
 {
@@ -19,7 +22,9 @@ namespace SoftBridge.Services.AutoMapper
                 cfg.AddProfile(new AuthProfile());
                 cfg.AddProfile(new ProviderMappingProfile());
                 cfg.AddProfile(new ClientMappingProfile());
-
+                cfg.AddProfile(new ChatMappingProfile());
+                cfg.AddProfile(new ServiceMappingProfile());
+                cfg.AddProfile(new CategoryMappingProfile());   
             });
             return services;
         }

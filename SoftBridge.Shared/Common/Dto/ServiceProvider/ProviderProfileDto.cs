@@ -30,8 +30,5 @@ namespace SoftBridge.Shared.Common.Dto.ServiceProvider
         public DateTime ApprovedAt { get; set; }
         public DateTime CreatedAt { get; set; }
 
-
-
-
     }
 }
