@@ -17,5 +17,6 @@ namespace SoftBridge.Abstraction.IServices.Profiles
         Task<IReadOnlyList<ServiceRequestDto>> GetMyRequestsAsync(Guid clientId);
         Task<ServiceRequestDto> GetRequestByIdAsync(Guid requestId, Guid clientId);
         Task<ReviewDto> AddReviewAsync(Guid clientId, AddReviewDto dto);
+
     }
 }
