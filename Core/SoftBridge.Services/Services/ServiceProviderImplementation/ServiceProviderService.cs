@@ -19,12 +19,12 @@ using System.Text;
 
 namespace SoftBridge.Services.Services.ServiceProviderImplementation
 {
-    public class ServiceProvider : IProviderProfileService
+    public class ServiceProviderService : IProviderProfileService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IAttachmentService _attachmentService;
-        public ServiceProvider(IUnitOfWork unitOfWork, IMapper mapper, IAttachmentService attachmentService)
+        public ServiceProviderService(IUnitOfWork unitOfWork, IMapper mapper, IAttachmentService attachmentService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
