@@ -40,11 +40,11 @@ namespace SoftBridge.Web.Extensions
             // and the class is too small to be scoped or singleton it take string and return string so it is better to be transient
             services.AddTransient(typeof(PictureUrlResolver<,>));
 
-            // 5. Client
-            services.AddScoped<IClientProfileService, ClientService>();
+            //// 5. Client
+            //services.AddScoped<IClientProfileService, ClientService>();
 
-            // 6. Provider 
-            services.AddScoped<IProviderProfileService, ServiceProviderService>();
+            //// 6. Provider 
+            //services.AddScoped<IProviderProfileService, ServiceProviderService>();
 
 
 
