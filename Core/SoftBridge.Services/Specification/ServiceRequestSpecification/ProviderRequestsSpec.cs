@@ -8,15 +8,16 @@ using System.Text;
 
 namespace SoftBridge.Services.Specification.ServiceRequestSpecification
 {
-    public class ClientRequestsSpec: BaseSpecifications<ServiceRequest, Guid>
+    public class ProviderRequestsSpec: BaseSpecifications<ServiceRequest, Guid>
     {
-        public ClientRequestsSpec(Guid clientId, RequestQueryParams qp)
-            :base(r => r.ClientId == clientId
+        public ProviderRequestsSpec(Guid providerId, RequestQueryParams qp)
+            : base(r => r.ProviderId == providerId
                     && !r.IsDeleted
                     && (qp.Status == null || r.Status == qp.Status)
                     && (qp.FromDate == null || r.CreatedAt >= qp.FromDate)
                     && (qp.ToDate == null || r.CreatedAt <= qp.ToDate)
-                    && (qp.Search == null || r.Service.Title.ToLower().Contains(qp.Search)))
+                    && (qp.Search == null || r.Service.Title.ToLower().Contains(qp.Search)
+                                          || r.Client.User.FullName.ToLower().Contains(qp.Search)))
         {
             AddInclude(r => r.Service);
 
@@ -29,9 +30,7 @@ namespace SoftBridge.Services.Specification.ServiceRequestSpecification
             IncludeStrings.Add(clientUser);
 
             AddOrderBy(r => r.CreatedAt, isDescending: true);
-
             ApplyPagenation(qp.PageSize, qp.PageIndex);
-
         }
     }
 }

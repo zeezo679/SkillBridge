@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace E_commerce.Shared.Common.Dto.ServiceRequest.NewDtos
+namespace SoftBridge.Shared.Common.Dto.ServiceRequest.NewDtos
 {
     // full details — used for single request view
     // includes review if one exists

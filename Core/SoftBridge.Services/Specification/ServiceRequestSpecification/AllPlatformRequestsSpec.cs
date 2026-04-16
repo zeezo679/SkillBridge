@@ -8,15 +8,18 @@ using System.Text;
 
 namespace SoftBridge.Services.Specification.ServiceRequestSpecification
 {
-    public class ClientRequestsSpec: BaseSpecifications<ServiceRequest, Guid>
+    // admin view — no ownership filter
+    public class AllPlatformRequestsSpec: BaseSpecifications<ServiceRequest, Guid>
     {
-        public ClientRequestsSpec(Guid clientId, RequestQueryParams qp)
-            :base(r => r.ClientId == clientId
-                    && !r.IsDeleted
-                    && (qp.Status == null || r.Status == qp.Status)
-                    && (qp.FromDate == null || r.CreatedAt >= qp.FromDate)
-                    && (qp.ToDate == null || r.CreatedAt <= qp.ToDate)
-                    && (qp.Search == null || r.Service.Title.ToLower().Contains(qp.Search)))
+        public AllPlatformRequestsSpec(RequestQueryParams qp)
+        : base(r => !r.IsDeleted
+                 && (qp.Status == null || r.Status == qp.Status)
+                 && (qp.FromDate == null || r.CreatedAt >= qp.FromDate)
+                 && (qp.ToDate == null || r.CreatedAt <= qp.ToDate)
+                 && (qp.Search == null
+                  || r.Service.Title.ToLower().Contains(qp.Search)
+                  || r.Client.User.FullName.ToLower().Contains(qp.Search)
+                  || r.Provider.User.FullName.ToLower().Contains(qp.Search)))
         {
             AddInclude(r => r.Service);
 
@@ -31,7 +34,6 @@ namespace SoftBridge.Services.Specification.ServiceRequestSpecification
             AddOrderBy(r => r.CreatedAt, isDescending: true);
 
             ApplyPagenation(qp.PageSize, qp.PageIndex);
-
         }
     }
 }

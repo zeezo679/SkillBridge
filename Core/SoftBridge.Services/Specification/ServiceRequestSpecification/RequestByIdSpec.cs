@@ -1,24 +1,22 @@
 ﻿using SoftBridge.Domain.Contracts.Specifications.BaseSpec;
 using SoftBridge.Domain.Models.AccountAggregates;
 using SoftBridge.Domain.Models.OrderAggregates;
-using SoftBridge.Shared.Common.Params.Requests;
+using SoftBridge.Domain.Models.ServiceAggregates;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace SoftBridge.Services.Specification.ServiceRequestSpecification
 {
-    public class ClientRequestsSpec: BaseSpecifications<ServiceRequest, Guid>
+    public class RequestByIdSpec: BaseSpecifications<ServiceRequest, Guid>
     {
-        public ClientRequestsSpec(Guid clientId, RequestQueryParams qp)
-            :base(r => r.ClientId == clientId
-                    && !r.IsDeleted
-                    && (qp.Status == null || r.Status == qp.Status)
-                    && (qp.FromDate == null || r.CreatedAt >= qp.FromDate)
-                    && (qp.ToDate == null || r.CreatedAt <= qp.ToDate)
-                    && (qp.Search == null || r.Service.Title.ToLower().Contains(qp.Search)))
+        // full detail load — used for GetRequestDetailsAsync
+        public RequestByIdSpec(Guid requestId)
+            :base(r => r.Id == requestId && !r.IsDeleted)
         {
             AddInclude(r => r.Service);
+            var serviceCategory = $"{nameof(ServiceRequest.Service)}.{nameof(Service.Category)}";
+            IncludeStrings.Add(serviceCategory);
 
             AddInclude(r => r.Provider);
             var providerUser = $"{nameof(ServiceRequest.Provider)}.{nameof(SProvider.User)}";
@@ -28,10 +26,7 @@ namespace SoftBridge.Services.Specification.ServiceRequestSpecification
             var clientUser = $"{nameof(ServiceRequest.Client)}.{nameof(Client.User)}";
             IncludeStrings.Add(clientUser);
 
-            AddOrderBy(r => r.CreatedAt, isDescending: true);
-
-            ApplyPagenation(qp.PageSize, qp.PageIndex);
-
+            AddInclude(r => r.Review);
         }
     }
 }
