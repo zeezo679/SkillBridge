@@ -10,7 +10,7 @@
 
         // Success response constructor
         // no error list needed for success responses, so it's not included here
-        public ApiResponse(TData data, string message, int statusCode = 200)
+        public ApiResponse(TData? data, string message, int statusCode = 200)
         {
             IsSuccess = true;
             Message = message;
@@ -26,7 +26,6 @@
             StatusCode = statusCode;
             Errors = errors;
         }
-
 
     }
 }
