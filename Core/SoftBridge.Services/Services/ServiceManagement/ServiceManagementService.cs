@@ -217,7 +217,10 @@ namespace SoftBridge.Services.Services.ServiceManagement
             return await _unitOfWork.SaveChangesAsync() > 0;
         }
 
+
         #region Private Helper Methods for create and update services
+
+        // guid or userID?
         private async Task ValidateProviderAsync(Guid providerId)
         {
             var providerRepo = _unitOfWork.GetRepository<SProvider, Guid>();

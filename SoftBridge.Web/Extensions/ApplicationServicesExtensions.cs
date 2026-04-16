@@ -2,11 +2,18 @@
 
 using SoftBridge.Abstraction.IServices.Attachement;
 using SoftBridge.Abstraction.IServices.Auth;
+using SoftBridge.Abstraction.IServices.Category;
+using SoftBridge.Abstraction.IServices.Profiles;
+using SoftBridge.Abstraction.IServicesContract.Chat;
 using SoftBridge.Abstraction.IServicesContract.Notification;
 using SoftBridge.Abstraction.IServicesContract.Services;
+using SoftBridge.Domain.Models.ServiceAggregates;
 using SoftBridge.Services.Resolver;
 using SoftBridge.Services.Services;
+using SoftBridge.Services.Services.Admin;
 using SoftBridge.Services.Services.AuthImplementation;
+using SoftBridge.Services.Services.CategoryImplementation;
+using SoftBridge.Services.Services.Chat;
 using SoftBridge.Services.Services.NotificationImplementation;
 using SoftBridge.Services.Services.NotificationImplementation.StrategyPattern;
 using SoftBridge.Services.Services.ServiceManagement;
@@ -32,6 +39,9 @@ namespace SoftBridge.Web.Extensions
             services.AddScoped<IServiceManagement, ServiceManagementService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IAdminService, AdminService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IChatService, ChatService>();
 
             // 4. transient services : because they are used in resolvers and we want a new instance each time
             // and the class is too small to be scoped or singleton it take string and return string so it is better to be transient
