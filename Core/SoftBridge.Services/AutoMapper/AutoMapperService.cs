@@ -24,7 +24,8 @@ namespace SoftBridge.Services.AutoMapper
                 cfg.AddProfile(new ClientMappingProfile());
                 cfg.AddProfile(new ChatMappingProfile());
                 cfg.AddProfile(new ServiceMappingProfile());
-                cfg.AddProfile(new CategoryMappingProfile());   
+                cfg.AddProfile(new CategoryMappingProfile());
+                
             });
             return services;
         }
