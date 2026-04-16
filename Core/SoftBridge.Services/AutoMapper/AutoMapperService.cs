@@ -9,6 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using SoftBridge.Services.AutoMapper.CategoryProfile;
+using SoftBridge.Services.AutoMapper.ServiceRequestMappingProfile;
+using SoftBridge.Services.AutoMapper.NotificationMapping;
+using SoftBridge.Services.AutoMapper.ReviewProfile;
 
 namespace SoftBridge.Services.AutoMapper
 {
@@ -25,7 +28,9 @@ namespace SoftBridge.Services.AutoMapper
                 cfg.AddProfile(new ChatMappingProfile());
                 cfg.AddProfile(new ServiceMappingProfile());
                 cfg.AddProfile(new CategoryMappingProfile());
-                
+                cfg.AddProfile(new ServiceRequestProfile());
+                cfg.AddProfile(new NotificationProfile());
+                cfg.AddProfile(new ReviewMappingProfile());
             });
             return services;
         }

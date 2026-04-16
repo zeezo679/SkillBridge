@@ -6,10 +6,10 @@ using System.Text;
 
 namespace SoftBridge.Services.Specification.ProviderSpecifications
 {
-    public class ProviderByUserIdWithUserSpec : BaseSpecifications<SProvider,Guid>
+    public class ProviderByIdWithUserSpec : BaseSpecifications<SProvider,Guid>
     {
-        public ProviderByUserIdWithUserSpec(string userId)
-            : base(p => p.UserId == userId)
+        public ProviderByIdWithUserSpec(Guid providerId)
+            : base(p => p.Id == providerId)
         {
             AddInclude(p => p.User);
         }
