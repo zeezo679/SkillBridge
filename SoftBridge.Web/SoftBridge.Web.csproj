@@ -11,13 +11,14 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
+		<PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="10.1.7" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Infrastructure\SoftBridge.Persistence\SoftBridge.Persistence.csproj" />
 		<ProjectReference Include="..\Infrastructure\SoftBridge.Presentation\SoftBridge.Presentation.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="Controllers/" />
 	  <Folder Include="Hubs/Chat/" />
 	</ItemGroup>
 </Project>

@@ -12,8 +12,8 @@ using SoftBridge.Persistence;
 namespace SoftBridge.Persistence.Migrations
 {
     [DbContext(typeof(ProjectDbContext))]
-    [Migration("20260408203902_Initial")]
-    partial class Initial
+    [Migration("20260416174000_CreateInitial")]
+    partial class CreateInitial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,95 +24,6 @@ namespace SoftBridge.Persistence.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("E_commerce.Domain.Models.User.ApplicationUser", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<DateTime>("LastLoginAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedAt");
-
-                    b.HasIndex("IsActive");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.ToTable("AspNetUsers", (string)null);
-                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -294,7 +205,6 @@ namespace SoftBridge.Persistence.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ApproveByAdminId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("ApprovedAt")
@@ -771,6 +681,100 @@ namespace SoftBridge.Persistence.Migrations
                     b.ToTable("Notifications", (string)null);
                 });
 
+            modelBuilder.Entity("SoftBridge.Domain.Models.User.ApplicationUser", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<DateTime>("LastLoginAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("UserType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("AspNetUsers", (string)null);
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -782,7 +786,7 @@ namespace SoftBridge.Persistence.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("E_commerce.Domain.Models.User.ApplicationUser", null)
+                    b.HasOne("SoftBridge.Domain.Models.User.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -791,7 +795,7 @@ namespace SoftBridge.Persistence.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("E_commerce.Domain.Models.User.ApplicationUser", null)
+                    b.HasOne("SoftBridge.Domain.Models.User.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -806,7 +810,7 @@ namespace SoftBridge.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("E_commerce.Domain.Models.User.ApplicationUser", null)
+                    b.HasOne("SoftBridge.Domain.Models.User.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -815,7 +819,7 @@ namespace SoftBridge.Persistence.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("E_commerce.Domain.Models.User.ApplicationUser", null)
+                    b.HasOne("SoftBridge.Domain.Models.User.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -824,7 +828,7 @@ namespace SoftBridge.Persistence.Migrations
 
             modelBuilder.Entity("SoftBridge.Domain.Models.AccountAggregates.Client", b =>
                 {
-                    b.HasOne("E_commerce.Domain.Models.User.ApplicationUser", "User")
+                    b.HasOne("SoftBridge.Domain.Models.User.ApplicationUser", "User")
                         .WithOne("ClientProfile")
                         .HasForeignKey("SoftBridge.Domain.Models.AccountAggregates.Client", "UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -835,13 +839,12 @@ namespace SoftBridge.Persistence.Migrations
 
             modelBuilder.Entity("SoftBridge.Domain.Models.AccountAggregates.SProvider", b =>
                 {
-                    b.HasOne("E_commerce.Domain.Models.User.ApplicationUser", "ApprovedByAdmin")
+                    b.HasOne("SoftBridge.Domain.Models.User.ApplicationUser", "ApprovedByAdmin")
                         .WithMany()
                         .HasForeignKey("ApproveByAdminId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("E_commerce.Domain.Models.User.ApplicationUser", "User")
+                    b.HasOne("SoftBridge.Domain.Models.User.ApplicationUser", "User")
                         .WithOne("ProviderProfile")
                         .HasForeignKey("SoftBridge.Domain.Models.AccountAggregates.SProvider", "UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -944,13 +947,13 @@ namespace SoftBridge.Persistence.Migrations
 
             modelBuilder.Entity("SoftBridge.Domain.Models.Shared.Message", b =>
                 {
-                    b.HasOne("E_commerce.Domain.Models.User.ApplicationUser", "Receiver")
+                    b.HasOne("SoftBridge.Domain.Models.User.ApplicationUser", "Receiver")
                         .WithMany("ReceivedMessages")
                         .HasForeignKey("ReceiverId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("E_commerce.Domain.Models.User.ApplicationUser", "Sender")
+                    b.HasOne("SoftBridge.Domain.Models.User.ApplicationUser", "Sender")
                         .WithMany("SentMessages")
                         .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -971,26 +974,13 @@ namespace SoftBridge.Persistence.Migrations
 
             modelBuilder.Entity("SoftBridge.Domain.Models.Shared.Notification", b =>
                 {
-                    b.HasOne("E_commerce.Domain.Models.User.ApplicationUser", "User")
+                    b.HasOne("SoftBridge.Domain.Models.User.ApplicationUser", "User")
                         .WithMany("Notifications")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("E_commerce.Domain.Models.User.ApplicationUser", b =>
-                {
-                    b.Navigation("ClientProfile");
-
-                    b.Navigation("Notifications");
-
-                    b.Navigation("ProviderProfile");
-
-                    b.Navigation("ReceivedMessages");
-
-                    b.Navigation("SentMessages");
                 });
 
             modelBuilder.Entity("SoftBridge.Domain.Models.AccountAggregates.Client", b =>
@@ -1028,6 +1018,19 @@ namespace SoftBridge.Persistence.Migrations
                     b.Navigation("Reviews");
 
                     b.Navigation("ServiceRequests");
+                });
+
+            modelBuilder.Entity("SoftBridge.Domain.Models.User.ApplicationUser", b =>
+                {
+                    b.Navigation("ClientProfile");
+
+                    b.Navigation("Notifications");
+
+                    b.Navigation("ProviderProfile");
+
+                    b.Navigation("ReceivedMessages");
+
+                    b.Navigation("SentMessages");
                 });
 #pragma warning restore 612, 618
         }

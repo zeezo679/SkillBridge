@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SoftBridge.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class CreateInitial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -18,6 +18,7 @@ namespace SoftBridge.Persistence.Migrations
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     FullName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    UserType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     LastLoginAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -138,7 +139,7 @@ namespace SoftBridge.Persistence.Migrations
                     AverageRating = table.Column<float>(type: "real", nullable: false, defaultValue: 0f),
                     TotalReviews = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     ApprovedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ApproveByAdminId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ApproveByAdminId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
