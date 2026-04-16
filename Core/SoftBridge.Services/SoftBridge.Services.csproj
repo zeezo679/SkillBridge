@@ -16,8 +16,11 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Folder Include="AutoMapper/ChatProfile/" />
+		<Folder Include="Services/Admin/" />
 		<Folder Include="Services/CategoryImplementation/" />
 		<Folder Include="Services/Chat/" />
 		<Folder Include="Specification/ChatSpecifications/" />
+		<Folder Include="Specification/ClientSpecification/" />
+		<Folder Include="Specification\" />
 	</ItemGroup>
 </Project>

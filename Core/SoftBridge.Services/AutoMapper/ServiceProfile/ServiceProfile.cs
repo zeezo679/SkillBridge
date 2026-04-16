@@ -7,9 +7,9 @@ using System;
 
 namespace SoftBridge.Services.AutoMapper.ServiceProfile;
 
-public class ServiceProfile : Profile
+public class ServiceMappingProfile : Profile
 {
-    public ServiceProfile()
+    public ServiceMappingProfile()
     {
         CreateMap<CreateServiceDto, Service>()
             .ForMember(dest => dest.Images, opt => opt.Ignore());

@@ -5,9 +5,9 @@ using SoftBridge.Domain.Models.ServiceAggregates;
 
 namespace SoftBridge.Services.AutoMapper.CategoryProfile;
 
-public class CategoryProfile : Profile
+public class CategoryMappingProfile : Profile
 {
-    public CategoryProfile()
+    public CategoryMappingProfile()
     {
         CreateMap<Category, CategoryDto>();
 
