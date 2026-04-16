@@ -1,20 +1,23 @@
-using System;
 using AutoMapper;
 using SoftBridge.Abstraction.IServices.Profiles;
+using SoftBridge.Abstraction.IServicesContract.Notification;
 using SoftBridge.Domain.Contracts.UnitOfWorkPattern;
 using SoftBridge.Domain.Exceptions.NotFoundModels;
 using SoftBridge.Domain.Models.AccountAggregates;
 using SoftBridge.Domain.Models.EnumHelper;
+using SoftBridge.Services.Services.NotificationImplementation;
 using SoftBridge.Services.Specification.ClientSpecification;
 using SoftBridge.Services.Specification.ProviderSpecifications;
 using SoftBridge.Shared.Common.Dto.Client;
+using SoftBridge.Shared.Common.Dto.Notification;
 using SoftBridge.Shared.Common.Dto.ServiceProvider;
 using SoftBridge.Shared.Common.Pagination;
 using SoftBridge.Shared.Common.Params.Admin;
+using System;
 
 namespace SoftBridge.Services.Services.Admin;
 
-public class AdminService(IUnitOfWork unitOfWork, IMapper mapper) : IAdminService
+public class AdminService(IUnitOfWork unitOfWork, IMapper mapper , INotificationService notificationService) : IAdminService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
@@ -27,6 +30,21 @@ public class AdminService(IUnitOfWork unitOfWork, IMapper mapper) : IAdminServic
         provider.ApproveByAdminId = adminId;
 
         await _unitOfWork.SaveChangesAsync();
+
+        var notificationMessage = new NotificationContentDto
+        {
+            UserId = userId,
+            Email = provider.User?.Email,
+            Subject = "تمت الموافقة على حسابك! 🎉",
+            Body = "أهلاً بك في SoftBridge! تمت مراجعة حسابك كمقدم خدمة والموافقة عليه بنجاح. يمكنك الآن البدء في تقديم خدماتك للعملاء.",
+            ReferenceId = provider.Id
+        };
+
+        await notificationService.SendNotificationAsync(
+        notificationMessage,
+        NotificationType.Push,
+        NotificationType.Email
+        );
     }
 
     public async Task<PaginationResponse<ClientProfileDto>> GetAllClientsAsync(ClientQueryParams queryParams)
@@ -65,6 +83,21 @@ public class AdminService(IUnitOfWork unitOfWork, IMapper mapper) : IAdminServic
         provider.ApprovedAt = null;
         provider.ApproveByAdminId = null;
         await _unitOfWork.SaveChangesAsync();
+
+        var notificationMessage = new NotificationContentDto
+        {
+            UserId = userId,
+            Email = provider.User?.Email,
+            Subject = "تحديث بخصوص طلب الانضمام ⚠️",
+            Body = "للأسف لم نتمكن من الموافقة على حسابك كمقدم خدمة في الوقت الحالي. يرجى مراجعة الشروط والأحكام أو التواصل مع الدعم الفني لمزيد من التفاصيل.",
+            ReferenceId = provider.Id
+        };
+
+        await notificationService.SendNotificationAsync(
+            notificationMessage,
+            NotificationType.Push,
+            NotificationType.Email
+        );
     }
 
 
