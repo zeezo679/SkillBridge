@@ -2,11 +2,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SoftBridge.Abstraction.IServicesContract.Review;
 using SoftBridge.Domain.Models.ServiceAggregates;
+using SoftBridge.Domain.Models.Shared;
 using SoftBridge.Persistence;
 using SoftBridge.Persistence.ProgramServices;
 using SoftBridge.Services.AutoMapper;
 using SoftBridge.Services.Services.ReviewImplementaion;
 using SoftBridge.Web.Extensions;
+using SoftBridge.Web.Hubs.Chat;
+using SoftBridge.Web.Hubs.Notification;
 using SoftBridge.Web.Middleware;
 namespace SoftBridge.Web
 {
@@ -26,13 +29,16 @@ namespace SoftBridge.Web
             builder.Services.InjectRateLimiting();
             // get from services layer
             builder.Services.InjectAutoMapperService();
+            //Add SignalR
+            builder.Services.AddSignalR();
+
 
             builder.Services.AddScoped<IReviewService, ReviewService>();
 
             // add AppDbContext Service
-            builder.Services.AddDbContext<ProjectDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-            );
+            // builder.Services.AddDbContext<ProjectDbContext>(options =>
+            // options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+            // );
 
             // add identity core
             builder.Services.AddDataProtection();
@@ -54,6 +60,9 @@ namespace SoftBridge.Web
             app.UseMiddleware<GlobalErrorHandlerMiddleware>();
             app.UseHttpsRedirection();
             app.UseRouting();
+
+            app.MapHub<NotificationHub>("/notificationHub");
+            app.MapHub<ChatHub>("/chatHub");
 
             // CORS MUST be between UseRouting and UseAuth
             app.UseCors("CorsPolicy");
