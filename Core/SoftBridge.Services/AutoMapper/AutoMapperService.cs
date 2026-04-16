@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using SoftBridge.Services.AutoMapper.AuthMapping;
 using SoftBridge.Services.AutoMapper.ClientProfile;
 using SoftBridge.Services.AutoMapper.ProviderProfile;
+using SoftBridge.Services.AutoMapper.RequestProfile;
+
 using SoftBridge.Services.AutoMapper.ServiceProfile;
 using SoftBridge.Services.AutoMapper.ChatProfile;
 using System;
@@ -25,6 +27,7 @@ namespace SoftBridge.Services.AutoMapper
                 cfg.AddProfile(new AuthProfile());
                 cfg.AddProfile(new ProviderMappingProfile());
                 cfg.AddProfile(new ClientMappingProfile());
+                cfg.AddProfile(new RequestMappingProfile());
                 cfg.AddProfile(new ChatMappingProfile());
                 cfg.AddProfile(new ServiceMappingProfile());
                 cfg.AddProfile(new CategoryMappingProfile());
