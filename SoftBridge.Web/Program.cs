@@ -1,10 +1,13 @@
-using SoftBridge.Persistence.ProgramServices;
-using SoftBridge.Services.AutoMapper;
-using SoftBridge.Web.Extensions;
-using SoftBridge.Web.Middleware;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SoftBridge.Abstraction.IServicesContract.Review;
+using SoftBridge.Domain.Models.ServiceAggregates;
 using SoftBridge.Persistence;
+using SoftBridge.Persistence.ProgramServices;
+using SoftBridge.Services.AutoMapper;
+using SoftBridge.Services.Services.ReviewImplementaion;
+using SoftBridge.Web.Extensions;
+using SoftBridge.Web.Middleware;
 namespace SoftBridge.Web
 {
     public class Program
@@ -23,6 +26,8 @@ namespace SoftBridge.Web
             builder.Services.InjectRateLimiting();
             // get from services layer
             builder.Services.InjectAutoMapperService();
+
+            builder.Services.AddScoped<IReviewService, ReviewService>();
 
             // add AppDbContext Service
             builder.Services.AddDbContext<ProjectDbContext>(options =>

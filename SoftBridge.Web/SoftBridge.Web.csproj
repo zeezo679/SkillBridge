@@ -17,7 +17,6 @@
 		<ProjectReference Include="..\Infrastructure\SoftBridge.Presentation\SoftBridge.Presentation.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="Hubs/" />
 	  <Folder Include="Hubs/Chat/" />
 	</ItemGroup>
 </Project>
