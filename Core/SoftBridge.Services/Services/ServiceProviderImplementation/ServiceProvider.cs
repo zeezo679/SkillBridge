@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using SoftBridge.Abstraction.IServices.Attachement;
 using SoftBridge.Abstraction.IServices.Profiles;
+using SoftBridge.Abstraction.IServicesContract.Notification;
 using SoftBridge.Domain.Contracts.UnitOfWorkPattern;
 using SoftBridge.Domain.Exceptions;
 using SoftBridge.Domain.Exceptions.BadRequestModels;
@@ -12,6 +13,7 @@ using SoftBridge.Domain.Models.ServiceAggregates;
 using SoftBridge.Services.Specification.ServiceProviderSpecification;
 using SoftBridge.Services.Specification.ServiceProviderSpecification.ToVerifyDeleteAccount;
 using SoftBridge.Shared.Common.Dto.Attachement;
+using SoftBridge.Shared.Common.Dto.Notification;
 using SoftBridge.Shared.Common.Dto.ServiceProvider;
 using System;
 using System.Collections.Generic;
@@ -24,11 +26,18 @@ namespace SoftBridge.Services.Services.ServiceProviderImplementation
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IAttachmentService _attachmentService;
-        public ServiceProvider(IUnitOfWork unitOfWork, IMapper mapper, IAttachmentService attachmentService)
+        private readonly INotificationService _notificationService; 
+
+        public ServiceProvider(
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            IAttachmentService attachmentService,
+            INotificationService notificationService) 
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _attachmentService = attachmentService;
+            _notificationService = notificationService;
         }
 
         // private helper
@@ -125,11 +134,28 @@ namespace SoftBridge.Services.Services.ServiceProviderImplementation
             var pendingRequestsSpec = new PendingRequestsByProviderSpec(provider.Id);
             var pendingRequests = await requestRepo.GetAllWithSpecAsync(pendingRequestsSpec);
 
-            foreach(var request in pendingRequests)
+            foreach (var request in pendingRequests)
             {
                 request.Status = RequestStatus.Rejected;
-                request.RejectionReason = "Provider account has been deleted.";
+                request.RejectionReason = "تم إلغاء الطلب بسبب حذف مقدم الخدمة لحسابه.";
                 requestRepo.Update(request);
+
+                var notificationMessage = new NotificationContentDto
+                {
+                    UserId = request.Client.UserId,
+                    Email = request.Client.User?.Email,
+                    Subject = "إلغاء طلب خدمة ⚠️",
+                    // Include Service in Spec
+                    Body = $"نعتذر لك، تم إلغاء طلبك المعلق لخدمة '{request.Service.Title}' لأن مقدم الخدمة قام بحذف حسابه نهائياً من المنصة.",
+                    ReferenceId = request.Id
+                };
+
+                // نبعت الإشعار
+                await _notificationService.SendNotificationAsync(
+                    notificationMessage,
+                    NotificationType.Push,
+                    NotificationType.Email
+                );
             }
 
             // 3. delete all services and remove their images from disk

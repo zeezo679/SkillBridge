@@ -1,4 +1,5 @@
 ﻿using SoftBridge.Domain.Contracts.Specifications.BaseSpec;
+using SoftBridge.Domain.Models.AccountAggregates;
 using SoftBridge.Domain.Models.OrderAggregates;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,9 @@ namespace SoftBridge.Services.Specification.ServiceRequestSpecification
         public RequestOwnershipSpec(Guid requestId)
         : base(r => r.Id == requestId && !r.IsDeleted)
         {
+            AddInclude(r => r.Client);
+            var clientUser = $"{nameof(ServiceRequest.Client)}.{nameof(Client.User)}";
+            IncludeStrings.Add(clientUser);
         }
     }
 }
