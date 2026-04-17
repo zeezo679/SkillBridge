@@ -6,9 +6,10 @@ namespace SoftBridge.Shared.Common.Dto.Notification
 {
     public class NotificationContentDto
     {
-        public string To { get; set; } // email or id of the user to receive the notification
-        public string Subject { get; set; }
-        public string Body { get; set; }
+        public string UserId { get; set; } = string.Empty; // For DB and Push (SignalR)
+        public string? Email { get; set; } // For Email Strategy (Nullable because not all notifications need emails)
+        public string Subject { get; set; } = string.Empty;
+        public string Body { get; set; } = string.Empty;
         public Guid? ReferenceId { get; set; }
     }
 }

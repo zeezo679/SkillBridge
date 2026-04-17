@@ -2,6 +2,7 @@
 using E_commerce.Shared.Common.Dto.Review;
 using SoftBridge.Abstraction.IServices.Attachement;
 using SoftBridge.Abstraction.IServices.Profiles;
+using SoftBridge.Abstraction.IServicesContract.Notification;
 using SoftBridge.Abstraction.IServicesContract.Review;
 using SoftBridge.Domain.Contracts.UnitOfWorkPattern;
 using SoftBridge.Domain.Exceptions;
@@ -11,6 +12,7 @@ using SoftBridge.Domain.Models.EnumHelper;
 using SoftBridge.Domain.Models.OrderAggregates;
 using SoftBridge.Domain.Models.ServiceAggregates;
 using SoftBridge.Services.Specification.ReviewSpecifications;
+using SoftBridge.Shared.Common.Dto.Notification;
 using SoftBridge.Shared.Common.Dto.Review;
 
 namespace SoftBridge.Services.Services.ReviewImplementaion
@@ -21,13 +23,15 @@ namespace SoftBridge.Services.Services.ReviewImplementaion
         private readonly IMapper _mapper;
         private readonly IAttachmentService _attachmentService;
         private readonly IClientProfileService _clientService;
+        private readonly INotificationService _notificationService;
         public ReviewService(IUnitOfWork unitOfWork, IMapper mapper, IAttachmentService attachmentService,
-                IClientProfileService clientService)
+                IClientProfileService clientService , INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _attachmentService = attachmentService;
             _clientService = clientService;
+            _notificationService = notificationService;
         }
 
         public async Task<ReviewDto> AddReviewAsync(string userId, AddReviewDto dto)
@@ -92,6 +96,21 @@ namespace SoftBridge.Services.Services.ReviewImplementaion
             }
 
             await _unitOfWork.SaveChangesAsync();
+
+            var notificationMessage = new NotificationContentDto
+            {
+                UserId = request.Provider.UserId,
+                Email = request.Provider.User?.Email,
+                Subject = "تقييم جديد لخدمتك! ⭐️",
+                Body = $"قام العميل بإضافة تقييم {dto.Rating} نجوم لخدمتك '{request.Service.Title}'. \nالتعليق: {dto.Comment ?? "بدون تعليق"}",
+                ReferenceId = review.Id
+            };
+
+            await _notificationService.SendNotificationAsync(
+                notificationMessage,
+                NotificationType.Push,
+                NotificationType.Email
+            );
 
             review.ServiceRequest = request;
             review.Provider = request.Provider;

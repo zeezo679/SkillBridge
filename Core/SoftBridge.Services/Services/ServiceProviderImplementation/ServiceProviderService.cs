@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using SoftBridge.Abstraction.IServices.Attachement;
 using SoftBridge.Abstraction.IServices.Profiles;
+using SoftBridge.Abstraction.IServicesContract.Notification;
 using SoftBridge.Domain.Contracts.UnitOfWorkPattern;
 using SoftBridge.Domain.Exceptions;
 using SoftBridge.Domain.Exceptions.BadRequestModels;
@@ -12,6 +13,7 @@ using SoftBridge.Domain.Models.ServiceAggregates;
 using SoftBridge.Services.Specification.ServiceProviderSpecification;
 using SoftBridge.Services.Specification.ServiceProviderSpecification.ToVerifyDeleteAccount;
 using SoftBridge.Shared.Common.Dto.Attachement;
+using SoftBridge.Shared.Common.Dto.Notification;
 using SoftBridge.Shared.Common.Dto.ServiceProvider;
 using System;
 using System.Collections.Generic;
@@ -24,11 +26,18 @@ namespace SoftBridge.Services.Services.ServiceProviderImplementation
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IAttachmentService _attachmentService;
-        public ServiceProviderService(IUnitOfWork unitOfWork, IMapper mapper, IAttachmentService attachmentService)
+        private readonly INotificationService _notificationService; 
+
+        public ServiceProviderService(
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            IAttachmentService attachmentService,
+            INotificationService notificationService) 
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _attachmentService = attachmentService;
+            _notificationService = notificationService;
         }
 
         // private helper
@@ -125,16 +134,29 @@ namespace SoftBridge.Services.Services.ServiceProviderImplementation
             var pendingRequestsSpec = new PendingRequestsByProviderSpec(provider.Id);
             var pendingRequests = await requestRepo.GetAllWithSpecAsync(pendingRequestsSpec);
 
-            foreach(var request in pendingRequests)
+            var notifications = new List<NotificationContentDto>();
+
+            foreach (var request in pendingRequests)
             {
                 request.Status = RequestStatus.Rejected;
-                request.RejectionReason = "Provider account has been deleted.";
+                request.RejectionReason = "تم إلغاء الطلب بسبب حذف مقدم الخدمة لحسابه.";
                 requestRepo.Update(request);
+
+                notifications.Add(new NotificationContentDto
+                {
+                    UserId = request.Client.UserId,
+                    Email = request.Client.User?.Email,
+                    Subject = "إلغاء طلب خدمة ⚠️",
+                    Body = $"نعتذر لك، تم إلغاء طلبك المعلق لخدمة '{request.Service.Title}' ...",
+                    ReferenceId = request.Id
+                });
+
             }
 
             // 3. delete all services and remove their images from disk
             var servicesSpec = new ActiveServicesByProviderSpec(provider.Id);
             var services = await serviceRepo.GetAllWithSpecAsync(servicesSpec);
+
 
             foreach(var service in services)
             {
@@ -155,6 +177,17 @@ namespace SoftBridge.Services.Services.ServiceProviderImplementation
             repo.Delete(provider);
 
             await _unitOfWork.SaveChangesAsync();
+
+            
+
+            foreach (var notification in notifications)
+            {
+                    await _notificationService.SendNotificationAsync(
+                    notification,
+                    NotificationType.Push,
+                    NotificationType.Email
+                );
+            }
         }
     }
 }

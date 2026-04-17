@@ -1,4 +1,5 @@
 ﻿using SoftBridge.Domain.Contracts.Specifications.BaseSpec;
+using SoftBridge.Domain.Models.AccountAggregates;
 using SoftBridge.Domain.Models.EnumHelper;
 using SoftBridge.Domain.Models.OrderAggregates;
 using System;
@@ -16,7 +17,11 @@ namespace SoftBridge.Services.Specification.ServiceProviderSpecification.ToVerif
                     && (s.Status == RequestStatus.Pending
                     || s.Status == RequestStatus.Completed))
         {
-            
+            AddInclude(r => r.Client);
+            var clientUser = $"{nameof(ServiceRequest.Client)}.{nameof(Client.User)}";
+            IncludeStrings.Add(clientUser);
+
+            AddInclude(r => r.Service);
         }
     }
 }

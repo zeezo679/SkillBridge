@@ -4,7 +4,8 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<RootNamespace>SoftBridge.Web</RootNamespace>
-	</PropertyGroup>
+	  <UserSecretsId>5a36b528-3478-456b-8517-0803c2377bef</UserSecretsId>
+  </PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.3" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">
