@@ -2,6 +2,7 @@
 using E_commerce.Shared.Common.Dto.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
 using SoftBridge.Abstraction.IServices.Attachement;
 using SoftBridge.Abstraction.IServicesContract.Notification;
 using SoftBridge.Abstraction.IServicesContract.Services;
@@ -16,6 +17,7 @@ using SoftBridge.Domain.Models.User;
 using SoftBridge.Services.Specification.ProviderSpecifications;
 using SoftBridge.Services.Specification.ServicesSpecifications;
 using SoftBridge.Shared.Common.Dto.Attachement;
+using SoftBridge.Shared.Common.Dto.Notification;
 using SoftBridge.Shared.Common.Dto.Service;
 using SoftBridge.Shared.Common.Pagination;
 using SoftBridge.Shared.Common.Params.Service;
@@ -29,7 +31,7 @@ namespace SoftBridge.Services.Services.ServiceManagement
         IUnitOfWork _unitOfWork,
         IMapper _mapper,
         IAttachmentService _attachmentService,
-        //INotificationService _notificationService,
+        INotificationService _notificationService,
         UserManager<ApplicationUser> _userManager 
         ) : IServiceManagement
     {
@@ -56,7 +58,7 @@ namespace SoftBridge.Services.Services.ServiceManagement
             await _unitOfWork.SaveChangesAsync();
 
             // 5. Notify Admins
-            await NotifyAdminsForNewServiceAsync(serviceEntity);
+            await NotifyAdminsAboutServiceAsync(serviceEntity, isNew:true);
 
             // 6. Return mapped DTO
             return _mapper.Map<ServiceDto>(serviceEntity);
@@ -86,6 +88,8 @@ namespace SoftBridge.Services.Services.ServiceManagement
             // 7. Save changes
             serviceRepo.Update(existingService);
             await _unitOfWork.SaveChangesAsync();
+            // Notify Admins about the update
+            await NotifyAdminsAboutServiceAsync(existingService, isNew: false);
             // 8. Return the updated DTO
             return _mapper.Map<ServiceDto>(existingService);
         }
@@ -274,38 +278,65 @@ namespace SoftBridge.Services.Services.ServiceManagement
 
             return uploadedImages;
         }
-        private async Task NotifyAdminsForNewServiceAsync(Service service)
+        private async Task NotifyAdminsAboutServiceAsync(Service service, bool isNew)
         {
-            // get all admins
+            string action = isNew ? "إنشاء خدمة جديدة" : "تعديل خدمة حالية";
+
             var admins = await _userManager.GetUsersInRoleAsync("Admin");
 
             foreach (var admin in admins)
             {
-                // send notification and email
+                var notificationMessage = new NotificationContentDto
+                {
+                    UserId = admin.Id, 
+                    Email = admin.Email,
+                    Subject = $"مراجعة مطلوبة: {action} 🔔",
+                    Body = $"قام مقدم الخدمة بتقديم طلب {action} باسم '{service.Title}'. يرجى الدخول للوحة التحكم لمراجعتها.",
+                    ReferenceId = service.Id
+                };
+
+                // 3. Push & Email 
+                await _notificationService.SendNotificationAsync(
+                    notificationMessage,
+                    NotificationType.Push,
+                    NotificationType.Email
+                );
             }
         }
         private async Task NotifyProviderAboutServiceStatusAsync(Service service)
         {
-            string title = string.Empty;
-            string body = string.Empty;
+            string subject = "";
+            string body = "";
 
             if (service.Status == ServiceStatus.Approved)
             {
-                title = "Service Approved! 🎉";
-                body = $"Congratulations! Your service '{service.Title}' has been approved and is now live for clients.";
+                subject = "تمت الموافقة على خدمتك! 🎉";
+                body = $"مبروك! تمت الموافقة على خدمتك '{service.Title}' وهي الآن متاحة للعملاء.";
             }
             else if (service.Status == ServiceStatus.Rejected)
             {
-                title = "Service Rejected ⚠️";
-                body = $"Your service '{service.Title}' requires modifications. Reason: {service.RejectionReason}";
+                subject = "تحديث بخصوص خدمتك ⚠️";
+                body = $"تم رفض خدمتك '{service.Title}'. السبب: {service.RejectionReason}. يرجى التعديل وإعادة التقديم.";
             }
             else
             {
-                // if the status is pending or any other status, we might choose not to send a notification
-                return;
+                return; 
             }
 
-            // Notification
+            var notificationMessage = new NotificationContentDto
+            {
+                UserId = service.Provider.UserId,
+                Email = service.Provider.User?.Email, //Spec  Include  User
+                Subject = subject,
+                Body = body,
+                ReferenceId = service.Id
+            };
+
+            await _notificationService.SendNotificationAsync(
+                notificationMessage,
+                NotificationType.Push,
+                NotificationType.Email
+            );
         }
         #endregion
 

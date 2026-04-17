@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Org.BouncyCastle.Utilities;
 using SoftBridge.Abstraction.IServicesContract.Notification;
 using SoftBridge.Domain.Contracts.UnitOfWorkPattern;
 using SoftBridge.Domain.Exceptions;
@@ -19,12 +20,12 @@ namespace SoftBridge.Services.Services.NotificationImplementation
 {
     public class NotificationService(IEnumerable<INotificationStrategy> _notificationStrategies , IUnitOfWork unitOfWork,IMapper mapper) : INotificationService
     {
-        public async Task SendNotificationAsync(NotificationContentDto message, NotificationType type)
+        public async Task SendNotificationAsync(NotificationContentDto message, params NotificationType[] types)
         {
             // create the entity and save to database
             var notificationEntity = new Notification
             {
-                UserId = message.To,
+                UserId = message.UserId, 
                 Title = message.Subject,
                 Message = message.Body,
                 ReferenceId = message.ReferenceId,
@@ -36,11 +37,15 @@ namespace SoftBridge.Services.Services.NotificationImplementation
             var repository = unitOfWork.GetRepository<Notification, Guid>();
             await repository.AddAsync(notificationEntity);
             await unitOfWork.SaveChangesAsync();
-            var strategy = _notificationStrategies.FirstOrDefault(s => s.Type == type);
 
-            if (strategy != null)
+            // Loop through the requested types and deliver
+            foreach (var type in types)
             {
-                await strategy.DeliverAsync(message);
+                var strategy = _notificationStrategies.FirstOrDefault(s => s.Type == type);
+                if (strategy != null)
+                {
+                    await strategy.DeliverAsync(message);
+                }
             }
         }
         

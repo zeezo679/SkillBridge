@@ -19,7 +19,6 @@ namespace SoftBridge.Services.Services.NotificationImplementation.StrategyPatter
 
         public Task DeliverAsync(NotificationContentDto ContentDto)
         {
-
             return webNotificationPusher.PushToUserAsync(ContentDto);
         }
     }

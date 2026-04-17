@@ -16,19 +16,26 @@ namespace SoftBridge.Services.Services.NotificationImplementation.StrategyPatter
 
         public async Task DeliverAsync(NotificationContentDto ContentDto)
         {
+            if (string.IsNullOrWhiteSpace(ContentDto.Email))
+                return;
+
             // 1. prepare message
             var emailMessage = new MimeMessage();
             emailMessage.From.Add(new MailboxAddress("Soft Bridge", _emailSettings.Email));
-            emailMessage.To.Add(new MailboxAddress("", ContentDto.To)); // the reciver 
-            emailMessage.Subject = ContentDto.Subject;
 
             // 2. for design body
+            emailMessage.To.Add(new MailboxAddress("", ContentDto.Email));
+
+            // 3. for design subject
+            emailMessage.Subject = ContentDto.Subject;
+
+            // 4. for design body
             emailMessage.Body = new TextPart("plain")
             {
                 Text = ContentDto.Body
             };
 
-            // 3.send emails
+            // 5. send emails
             using var client = new SmtpClient();
             try
             {
@@ -44,8 +51,10 @@ namespace SoftBridge.Services.Services.NotificationImplementation.StrategyPatter
             finally
             {
                 // close connections
-                await client.DisconnectAsync(true);
-                client.Dispose();
+                if (client.IsConnected)
+                {
+                    await client.DisconnectAsync(true);
+                }
             }
         }
     }

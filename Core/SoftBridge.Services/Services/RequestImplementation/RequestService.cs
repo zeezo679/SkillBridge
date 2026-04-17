@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using SoftBridge.Abstraction.IServices.Profiles;
+using SoftBridge.Abstraction.IServicesContract.Notification;
 using SoftBridge.Abstraction.IServicesContract.Request;
 using SoftBridge.Domain.Contracts.UnitOfWorkPattern;
 using SoftBridge.Domain.Exceptions;
@@ -9,7 +10,9 @@ using SoftBridge.Domain.Models.EnumHelper;
 using SoftBridge.Domain.Models.OrderAggregates;
 using SoftBridge.Domain.Models.ServiceAggregates;
 using SoftBridge.Services.Services.ClientImplementation;
+using SoftBridge.Services.Services.NotificationImplementation;
 using SoftBridge.Services.Specification.ServiceRequestSpecification;
+using SoftBridge.Shared.Common.Dto.Notification;
 using SoftBridge.Shared.Common.Dto.ServiceRequest.NewDtos;
 using SoftBridge.Shared.Common.Pagination;
 using SoftBridge.Shared.Common.Params.Requests;
@@ -25,14 +28,16 @@ namespace SoftBridge.Services.Services.RequestImplementation
         private readonly IMapper _mapper;
         private readonly IClientProfileService _clientService;
         private readonly IProviderProfileService _providerService;
+        private readonly INotificationService _notificationService;
 
         public RequestService(IUnitOfWork unitOfWork, IMapper mapper,
-                IClientProfileService clientService, IProviderProfileService providerService)
+                IClientProfileService clientService, IProviderProfileService providerService , INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _clientService = clientService;
             _providerService = providerService;
+            _notificationService = notificationService;
         }
 
         // Client Operations
@@ -75,6 +80,22 @@ namespace SoftBridge.Services.Services.RequestImplementation
             // 4. *** reload with navigations for mapping ***
             var detailSpec = new RequestByIdSpec(request.Id);
             var createdRequest = await requestRepo.GetByIdWithSpecAsync(detailSpec);
+            
+            var notificationMessage = new NotificationContentDto
+            {
+                // include Provider & Services
+                UserId = createdRequest!.Provider.UserId,
+                Email = createdRequest.Provider.User?.Email,
+                Subject = "طلب خدمة جديد 🔔",
+                Body = $"لقد تلقيت طلب جديد من عميل لخدمة '{createdRequest.Service.Title}'. يرجى مراجعته في أقرب وقت.",
+                ReferenceId = createdRequest.Id
+            };
+
+            await _notificationService.SendNotificationAsync(
+                notificationMessage,
+                NotificationType.Push,
+                NotificationType.Email
+            );
 
             return _mapper.Map<RequestDto>(createdRequest);
         }
@@ -145,6 +166,19 @@ namespace SoftBridge.Services.Services.RequestImplementation
             requestRepo.Update(request);
             await _unitOfWork.SaveChangesAsync();
 
+            var notificationMessage = new NotificationContentDto
+            {
+                // RequestOwnershipSpec  Include  Client.User
+                UserId = request.Client.UserId,
+                Email = request.Client.User?.Email,
+                Subject = "تم قبول طلبك! 🎉",
+                Body = "وافق مقدم الخدمة على طلبك. يمكنك الآن التواصل معه والبدء في التنفيذ.",
+                ReferenceId = request.Id
+            };
+
+            await _notificationService.SendNotificationAsync(
+                notificationMessage, NotificationType.Push, NotificationType.Email);
+
             return true;
         }
         public async Task<bool> RejectRequestAsync(Guid requestId, Guid providerId, string rejectionReason)
@@ -172,6 +206,18 @@ namespace SoftBridge.Services.Services.RequestImplementation
             requestRepo.Update(request);
             await _unitOfWork.SaveChangesAsync();
 
+            var notificationMessage = new NotificationContentDto
+            {
+                UserId = request.Client.UserId,
+                Email = request.Client.User?.Email,
+                Subject = "تحديث بخصوص طلبك ⚠️",
+                Body = $"نأسف، قام مقدم الخدمة برفض طلبك. السبب: {request.RejectionReason}",
+                ReferenceId = request.Id
+            };
+
+            await _notificationService.SendNotificationAsync(
+                notificationMessage, NotificationType.Push, NotificationType.Email);
+
             return true;
         }
 
@@ -196,6 +242,18 @@ namespace SoftBridge.Services.Services.RequestImplementation
 
             requestRepo.Update(request);
             await _unitOfWork.SaveChangesAsync();
+
+            var notificationMessage = new NotificationContentDto
+            {
+                UserId = request.Client.UserId,
+                Email = request.Client.User?.Email,
+                Subject = "اكتمل طلبك! ✅",
+                Body = "قام مقدم الخدمة بإنهاء العمل على طلبك. يرجى مراجعة العمل وتقييم الخدمة.",
+                ReferenceId = request.Id
+            };
+
+            await _notificationService.SendNotificationAsync(
+                notificationMessage, NotificationType.Push, NotificationType.Email);
 
             return true;
         }

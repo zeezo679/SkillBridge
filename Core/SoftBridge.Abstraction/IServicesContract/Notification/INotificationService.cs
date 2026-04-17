@@ -13,7 +13,7 @@ namespace SoftBridge.Abstraction.IServicesContract.Notification
     // (e.g., email, SMS, push notifications).
     public interface INotificationService
     {
-        Task SendNotificationAsync(NotificationContentDto message, NotificationType type);
+        Task SendNotificationAsync(NotificationContentDto message, params NotificationType[] types);
 
         // --- User/Client Operations (The Bell Icon) ---
         Task<PaginationResponse<NotificationDto>> GetUserNotificationsAsync(string userId, NotificationQueryParams queryParams);
