@@ -1,5 +1,3 @@
-
-
 using SoftBridge.Abstraction.IServices.Attachement;
 using SoftBridge.Abstraction.IServices.Auth;
 using SoftBridge.Abstraction.IServices.Category;
@@ -15,7 +13,6 @@ using SoftBridge.Services.Resolver;
 using SoftBridge.Services.Services;
 using SoftBridge.Services.Services.Admin;
 using SoftBridge.Services.Services.AuthImplementation;
-
 using SoftBridge.Services.Services.CategoryImplementation;
 using SoftBridge.Services.Services.Chat;
 using SoftBridge.Services.Services.ClientImplementation;
@@ -46,6 +43,7 @@ namespace SoftBridge.Web.Extensions
             services.AddScoped<IServiceManagement, ServiceManagementService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<INotificationService, NotificationService>();
+
             services.AddScoped<IAdminService, AdminService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IChatService, ChatService>();
