@@ -11,8 +11,7 @@ using System.Security.Claims;
 
 namespace SoftBridge.Web.Controllers.ServiceRequestController
 {
-    [Route("api/[controller]")]
-    [ApiController]
+
     public class RequestController : AppBaseController
     {
         private readonly IRequestWorkflowService _requestService;
