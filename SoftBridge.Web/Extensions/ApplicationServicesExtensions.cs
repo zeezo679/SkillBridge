@@ -7,6 +7,7 @@ using SoftBridge.Abstraction.IServicesContract.Notification;
 using SoftBridge.Abstraction.IServicesContract.Services;
 using SoftBridge.Abstraction.IServicesContract.Token;
 using SoftBridge.Domain.Contracts.UnitOfWorkPattern;
+using SoftBridge.Domain.Models.ServiceAggregates;
 using SoftBridge.Persistence.ImplementsContracts.UowImmlementation;
 using SoftBridge.Services.Resolver;
 using SoftBridge.Services.Services;
@@ -18,6 +19,7 @@ using SoftBridge.Services.Services.ClientImplementation;
 using SoftBridge.Services.Services.NotificationImplementation;
 using SoftBridge.Services.Services.NotificationImplementation.StrategyPattern;
 using SoftBridge.Services.Services.ServiceManagement;
+using SoftBridge.Services.Services.ServiceProviderImplementation;
 using SoftBridge.Services.Services.Token;
 using SoftBridge.Shared.Common.Dto.Notification.Settings;
 
