@@ -149,13 +149,7 @@ namespace SoftBridge.Services.Services.ServiceProviderImplementation
                     Body = $"نعتذر لك، تم إلغاء طلبك المعلق لخدمة '{request.Service.Title}' لأن مقدم الخدمة قام بحذف حسابه نهائياً من المنصة.",
                     ReferenceId = request.Id
                 };
-
-                // نبعت الإشعار
-                await _notificationService.SendNotificationAsync(
-                    notificationMessage,
-                    NotificationType.Push,
-                    NotificationType.Email
-                );
+                
             }
 
             // 3. delete all services and remove their images from disk
@@ -181,6 +175,15 @@ namespace SoftBridge.Services.Services.ServiceProviderImplementation
             repo.Delete(provider);
 
             await _unitOfWork.SaveChangesAsync();
+
+            foreach (var notification in notifications)
+            {
+                    await _notificationService.SendNotificationAsync(
+                    notification,
+                    NotificationType.Push,
+                    NotificationType.Email
+                );
+            }
         }
     }
 }
