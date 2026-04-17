@@ -21,14 +21,14 @@ using System.Text;
 
 namespace SoftBridge.Services.Services.ServiceProviderImplementation
 {
-    public class ServiceProvider : IProviderProfileService
+    public class ServiceProviderService : IProviderProfileService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IAttachmentService _attachmentService;
         private readonly INotificationService _notificationService; 
 
-        public ServiceProvider(
+        public ServiceProviderService(
             IUnitOfWork unitOfWork,
             IMapper mapper,
             IAttachmentService attachmentService,
@@ -134,27 +134,29 @@ namespace SoftBridge.Services.Services.ServiceProviderImplementation
             var pendingRequestsSpec = new PendingRequestsByProviderSpec(provider.Id);
             var pendingRequests = await requestRepo.GetAllWithSpecAsync(pendingRequestsSpec);
 
+            var notifications = new List<NotificationContentDto>();
+
             foreach (var request in pendingRequests)
             {
                 request.Status = RequestStatus.Rejected;
                 request.RejectionReason = "تم إلغاء الطلب بسبب حذف مقدم الخدمة لحسابه.";
                 requestRepo.Update(request);
 
-                var notificationMessage = new NotificationContentDto
+                notifications.Add(new NotificationContentDto
                 {
                     UserId = request.Client.UserId,
                     Email = request.Client.User?.Email,
                     Subject = "إلغاء طلب خدمة ⚠️",
-                    // Include Service in Spec
-                    Body = $"نعتذر لك، تم إلغاء طلبك المعلق لخدمة '{request.Service.Title}' لأن مقدم الخدمة قام بحذف حسابه نهائياً من المنصة.",
+                    Body = $"نعتذر لك، تم إلغاء طلبك المعلق لخدمة '{request.Service.Title}' ...",
                     ReferenceId = request.Id
-                };
-                
+                });
+
             }
 
             // 3. delete all services and remove their images from disk
             var servicesSpec = new ActiveServicesByProviderSpec(provider.Id);
             var services = await serviceRepo.GetAllWithSpecAsync(servicesSpec);
+
 
             foreach(var service in services)
             {
@@ -175,6 +177,8 @@ namespace SoftBridge.Services.Services.ServiceProviderImplementation
             repo.Delete(provider);
 
             await _unitOfWork.SaveChangesAsync();
+
+            
 
             foreach (var notification in notifications)
             {
