@@ -14,7 +14,7 @@ namespace SoftBridge.Abstraction.IServices.Profiles
         Task<ClientProfileDto> GetByIdAsync(Guid clientId);
         Task<ClientProfileDto> UpdateProfileAsync(string userId, UpdateClientProfileDto updateDto);
         Task DeleteAccountAsync(string userId);
-        Task<IReadOnlyList<ServiceRequestDto>> GetMyRequestsAsync(Guid clientId);
-        Task<ServiceRequestDto> GetRequestByIdAsync(Guid requestId, Guid clientId);
+        //Task<IReadOnlyList<ServiceRequestDto>> GetMyRequestsAsync(Guid clientId);
+        //Task<ServiceRequestDto> GetRequestByIdAsync(Guid requestId, Guid clientId);
     }
 }
