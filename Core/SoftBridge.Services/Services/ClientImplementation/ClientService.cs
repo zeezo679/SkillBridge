@@ -1,17 +1,18 @@
 ﻿using AutoMapper;
-using SoftBridge.Domain.Exceptions;
-using SoftBridge.Shared.Common.Dto.Client;
-using SoftBridge.Shared.Common.Dto.Review;
-using SoftBridge.Shared.Common.Dto.ServiceRequest;
+using SoftBridge.Abstraction.IServices.Attachement;
 using SoftBridge.Abstraction.IServices.Profiles;
 using SoftBridge.Domain.Contracts.SpecificationPattern.ClientSpec;
 using SoftBridge.Domain.Contracts.SpecificationPattern.ServiceRequestSpec;
+using SoftBridge.Domain.Contracts.UnitOfWorkPattern;
+using SoftBridge.Domain.Exceptions;
 using SoftBridge.Domain.Models.AccountAggregates;
 using SoftBridge.Domain.Models.EnumHelper;
 using SoftBridge.Domain.Models.OrderAggregates;
 using SoftBridge.Domain.Models.ServiceAggregates;
-using SoftBridge.Domain.Contracts.UnitOfWorkPattern;
-using SoftBridge.Abstraction.IServices.Attachement;
+using SoftBridge.Shared.Common.Dto.Attachement;
+using SoftBridge.Shared.Common.Dto.Client;
+using SoftBridge.Shared.Common.Dto.Review;
+using SoftBridge.Shared.Common.Dto.ServiceRequest;
 
 namespace SoftBridge.Services.Services.ClientImplementation
 {
@@ -65,19 +66,21 @@ namespace SoftBridge.Services.Services.ClientImplementation
 
             client.User.FullName = updateDto.FullName;
 
-            if(updateDto.ProfileImageUrl != null)
+            
+            // handle profile picture
+            if (updateDto.ProfileImageUrl != null)
             {
-                if (!string.IsNullOrEmpty(client.ProfileImageUrl))
+                var folder = Path.Combine("Providers", userId, "Profile");
+                var imagePath = await _attachmentService.UploadFileAsync(new UploadFileDto
                 {
-                    _attachmentService.DeleteFileAsync(updateDto.ProfileImageUrl);
-                }
-                // Generate a unique filename for the new profile image
-                var profilePicturePath = Path.Combine("Users", userId, "Profile");
+                    File = updateDto.ProfileImageUrl,
+                    FolderName = folder
+                });
 
-                //You fix this, Subhi, because I don't know.
-                //var imagePath = await _attachmentService.UploadFileAsync(updateDto.ProfileImageUrl, profilePicturePath);
+                if (!string.IsNullOrEmpty(client.ProfileImageUrl))
+                    await _attachmentService.DeleteFileAsync(client.ProfileImageUrl);
 
-                //client.ProfileImageUrl = imagePath;
+                client.ProfileImageUrl = imagePath;
             }
 
             repo.Update(client);
@@ -103,27 +106,27 @@ namespace SoftBridge.Services.Services.ClientImplementation
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<IReadOnlyList<ServiceRequestDto>> GetMyRequestsAsync(Guid clientId)
-        {
-            var repo = _unitOfWork.GetRepository<ServiceRequest, Guid>();
-            var spec = new ClientRequestsSpec(clientId);
-            var requests = await repo.GetAllWithSpecAsync(spec);
+        //public async Task<IReadOnlyList<ServiceRequestDto>> GetMyRequestsAsync(Guid clientId)
+        //{
+        //    var repo = _unitOfWork.GetRepository<ServiceRequest, Guid>();
+        //    var spec = new ClientRequestsSpec(clientId);
+        //    var requests = await repo.GetAllWithSpecAsync(spec);
 
-            return _mapper.Map<IReadOnlyList<ServiceRequestDto>>(requests);
-        }
+        //    return _mapper.Map<IReadOnlyList<ServiceRequestDto>>(requests);
+        //}
 
-        public async Task<ServiceRequestDto> GetRequestByIdAsync(Guid requestId, Guid clientId)
-        {
-            var repo = _unitOfWork.GetRepository<ServiceRequest, Guid>();
-            var spec = new ClientRequestByIdSpec(requestId, clientId);
-            var request = await repo.GetByIdWithSpecAsync(spec);
+        //public async Task<ServiceRequestDto> GetRequestByIdAsync(Guid requestId, Guid clientId)
+        //{
+        //    var repo = _unitOfWork.GetRepository<ServiceRequest, Guid>();
+        //    var spec = new ClientRequestByIdSpec(requestId, clientId);
+        //    var request = await repo.GetByIdWithSpecAsync(spec);
 
-            if (request is null)
-                throw new ClientNotFoundException(
-                    $"Request '{requestId}' was not found.");
+        //    if (request is null)
+        //        throw new ClientNotFoundException(
+        //            $"Request '{requestId}' was not found.");
 
-            return _mapper.Map<ServiceRequestDto>(request);
-        }
+        //    return _mapper.Map<ServiceRequestDto>(request);
+        //}
 
     }
 }
