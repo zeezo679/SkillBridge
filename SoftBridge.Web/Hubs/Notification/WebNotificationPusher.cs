@@ -20,13 +20,14 @@ namespace SoftBridge.Services.Services.NotificationImplementation
         public async Task PushToUserAsync(NotificationContentDto notificationContentDto)
         {
             // SendAsync method is used to send a message to a specific user identified by notificationContentDto.To.
-            await notificationHub.Clients.User(notificationContentDto.To)
+            await notificationHub.Clients.User(notificationContentDto.UserId)
                 // ReceiveNotification is the name of the client-side method that will be invoked when the notification is received.
                 // used in frontend to handle the incoming notification and display it to the user.
                 .SendAsync("ReceiveNotification", new
                 {
                     subject = notificationContentDto.Subject,
                     body = notificationContentDto.Body,
+                    referenceId = notificationContentDto.ReferenceId,
                     date = DateTime.UtcNow
                 });
         }
