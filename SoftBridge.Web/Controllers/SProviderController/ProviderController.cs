@@ -8,8 +8,7 @@ using System.Security.Claims;
 
 namespace SoftBridge.Web.Controllers.SProviderController
 {
-    [Route("api/[controller]")]
-    [ApiController]
+
     [Authorize(Roles ="Provider")]
     public class ProviderController : AppBaseController
     {
