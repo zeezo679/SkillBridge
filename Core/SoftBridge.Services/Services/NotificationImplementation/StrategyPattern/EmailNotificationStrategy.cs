@@ -51,7 +51,10 @@ namespace SoftBridge.Services.Services.NotificationImplementation.StrategyPatter
             finally
             {
                 // close connections
-                await client.DisconnectAsync(true);
+                if (client.IsConnected)
+                {
+                    await client.DisconnectAsync(true);
+                }
             }
         }
     }
