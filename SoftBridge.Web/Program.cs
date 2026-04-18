@@ -1,89 +1,74 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using SoftBridge.Abstraction.IServicesContract.Review;
-using SoftBridge.Domain.Models.ServiceAggregates;
-using SoftBridge.Domain.Models.Shared;
-using SoftBridge.Persistence;
+using SoftBridge.Persistence.Extensions;
 using SoftBridge.Persistence.ProgramServices;
 using SoftBridge.Services.AutoMapper;
-using SoftBridge.Services.Services.ReviewImplementaion;
 using SoftBridge.Web.Extensions;
 using SoftBridge.Web.Hubs.Chat;
 using SoftBridge.Web.Hubs.Notification;
 using SoftBridge.Web.Middleware;
+
 namespace SoftBridge.Web
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // get from presistence layer (database configure) 
+            // 1. Database & Infrastructure
             builder.Services.InjectDatabaseService(builder.Configuration);
-            // get from identity layer in web project (Identity core configure)
+
+            // 2. Identity & Security
             builder.Services.InjectIdentityCore();
-            // inject all application services 
-            builder.Services.AddApplicationServices(builder.Configuration);
-            // get from web layer (rate limiting configure)
             builder.Services.InjectRateLimiting();
-            // get from services layer
+            builder.Services.AddDataProtection();
+
+            // 3. Application Services & AutoMapper
+            builder.Services.AddApplicationServices(builder.Configuration);
             builder.Services.InjectAutoMapperService();
-            //Add SignalR
+
+            // 4. API Core Features & SignalR
+            builder.Services.AddControllers();
             builder.Services.AddSignalR();
 
-
-            builder.Services.AddScoped<IReviewService, ReviewService>();
-
-            // add AppDbContext Service
-            // builder.Services.AddDbContext<ProjectDbContext>(options =>
-            // options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-            // );
-
-            // add identity core
-            builder.Services.AddDataProtection();
-            
-                   
-            // Add services to the container.
-            builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+            // 5. Swagger & OpenAPI Documentation
             builder.Services.AddOpenApi();
-
-            #region ToBuildSwaggerUI
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            #endregion
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            // Initialization
+            await app.SeedDatabaseAsync();
+
+            // Configure the HTTP Request Pipeline
+            app.UseMiddleware<GlobalErrorHandlerMiddleware>();
+
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
-
-                #region ToBuildSwaggerUI
                 app.UseSwagger();
                 app.UseSwaggerUI();
-                #endregion
             }
 
-            app.UseMiddleware<GlobalErrorHandlerMiddleware>();
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
+
             app.UseRouting();
 
-            app.MapHub<NotificationHub>("/notificationHub");
-            app.MapHub<ChatHub>("/chatHub");
-
-            // CORS MUST be between UseRouting and UseAuth
+            // CORS MUST be placed between UseRouting and UseAuthentication
             app.UseCors("CorsPolicy");
 
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseStaticFiles();
+            // ==========================================
+            // Endpoints Mapping
+            // ==========================================
             app.MapControllers();
+            app.MapHub<NotificationHub>("/notificationHub");
+            app.MapHub<ChatHub>("/chatHub");
 
-            app.Run();
+            await app.RunAsync();
         }
     }
 }
