@@ -13,7 +13,7 @@ public class SProviderConfiguration : IEntityTypeConfiguration<SProvider>
         builder.ToTable("Providers",
             t =>
             {
-                t.HasCheckConstraint("CK_Providers_AverageRating", "[AverageRating] BETWEEN 1 AND 5");
+                t.HasCheckConstraint("CK_Providers_AverageRating", "[AverageRating] BETWEEN 0 AND 5");
                 t.HasCheckConstraint("CK_Providers_TotalReviews", "[TotalReviews] >= 0");
             });
 
