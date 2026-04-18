@@ -6,13 +6,15 @@ using SoftBridge.Abstraction.IServicesContract.Token;
 using SoftBridge.Domain.Exceptions;
 using SoftBridge.Domain.Models.EnumHelper;
 using SoftBridge.Domain.Models.User;
+using SoftBridge.Services.Services.NotificationImplementation;
+using SoftBridge.Shared.Common.Dto.Notification;
 using SoftBridge.Shared.Dto_s.Auth.ForgetPssword;
 using SoftBridge.Shared.Dto_s.Auth.Sign_In_Up;
 using SoftBridge.Shared.Dto_s.Token;
 
 namespace SoftBridge.Services.Services.AuthImplementation
 {
-    public class AuthService(UserManager<ApplicationUser> _userManager, IMapper _mapper, ITokenService _tokenService)
+    public class AuthService(UserManager<ApplicationUser> _userManager, IMapper _mapper, ITokenService _tokenService ,INotificationService notificationService)
            : IAuthService
     {
         public async Task<AuthModelDto> RegisterAsync(RegisterDto registerDto)
@@ -119,17 +121,15 @@ namespace SoftBridge.Services.Services.AuthImplementation
             var otp = await _userManager.GeneratePasswordResetTokenAsync(user);
 
             // 3 - Send OTP to user's email (this is a placeholder, you should implement actual email sending logic)
-            #region Email service 
-            // 3 - Send OTP 
-            //var message = new MessageDto
-            //{
-            //    To = user.Email!,
-            //    Subject = "Password Reset OTP",
-            //    Body = $"Your OTP code is: {otp}. It is valid for 2 min."
-            //};
+            var message = new NotificationContentDto 
+            {
+                UserId = user.Id,
+                Email = user.Email,
+                Subject = "SoftBridge - رمز استعادة كلمة المرور",
+                Body = $"كود استعادة كلمة المرور الخاص بك هو: {otp}\nهذا الكود صالح لمدة 5 دقيقة ولا تشاركه مع أحد."
+            };
 
-            //await _notificationService.SendNotificationAsync(message, NotificationType.Email);
-            #endregion
+            await notificationService.SendNotificationAsync(message, NotificationType.Email);
         }
         public async Task<bool> VerifyOtpAsync(VerifyOtpDto verifyOtpDto)
         {

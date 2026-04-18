@@ -26,6 +26,10 @@ namespace SoftBridge.Web.Extensions
                  .AddRoles<IdentityRole>()
                  .AddEntityFrameworkStores<ProjectDbContext>()
                  .AddDefaultTokenProviders();
+            services.Configure<DataProtectionTokenProviderOptions>(options =>
+            {
+                options.TokenLifespan = TimeSpan.FromMinutes(5);
+            });
             return services;
         }
         public static IServiceCollection InjectRateLimiting(this IServiceCollection services)
