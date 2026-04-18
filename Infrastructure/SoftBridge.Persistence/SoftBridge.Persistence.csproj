@@ -7,8 +7,11 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Remove="Configurations\**" />
+		<Compile Remove="Project-DbContext\**" />
 		<EmbeddedResource Remove="Configurations\**" />
+		<EmbeddedResource Remove="Project-DbContext\**" />
 		<None Remove="Configurations\**" />
+		<None Remove="Project-DbContext\**" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.3" />
@@ -21,8 +24,5 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\Core\SoftBridge.Domain\SoftBridge.Domain.csproj" />
 		<ProjectReference Include="..\..\Core\SoftBridge.Services\SoftBridge.Services.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="Project-DbContext\" />
 	</ItemGroup>
 </Project>
