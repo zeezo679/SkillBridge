@@ -1,3 +1,4 @@
+using PharmaBridge.Web.Extensions;
 using SoftBridge.Persistence.Extensions;
 using SoftBridge.Persistence.ProgramServices;
 using SoftBridge.Services.AutoMapper;
@@ -21,6 +22,9 @@ namespace SoftBridge.Web
             builder.Services.InjectIdentityCore();
             builder.Services.InjectRateLimiting();
             builder.Services.AddDataProtection();
+            // Add JWT Authentication and CORS configuration
+            builder.Services.AddJwtAuthentication(builder.Configuration, builder.Environment);
+            builder.Services.AddCustomCors(builder.Configuration);
 
             // 3. Application Services & AutoMapper
             builder.Services.AddApplicationServices(builder.Configuration);
