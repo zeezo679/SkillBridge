@@ -15,7 +15,7 @@ namespace SoftBridge.Web
             var builder = WebApplication.CreateBuilder(args);
 
             // 1. Database & Infrastructure
-            builder.Services.InjectDatabaseService(builder.Configuration);
+            builder.Services.InjectDatabaseService(builder.Configuration, builder.Environment);
 
             // 2. Identity & Security
             builder.Services.InjectIdentityCore();

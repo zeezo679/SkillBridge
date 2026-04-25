@@ -40,41 +40,26 @@ public class CategoryControllerTests : IClassFixture<WebApplicationFactory<SoftB
     // Controller class name = CategoryController → route = api/category
     private const string BaseRoute = "api/category";
 
+    private static readonly string DbName = "CategoryTestDb_" + Guid.NewGuid();
     public CategoryControllerTests(WebApplicationFactory<Program> factory)
     {
         _client = factory.WithWebHostBuilder(builder =>
-{
-    builder.UseEnvironment("Development"); // Ensure we use development settings (e.g., for JWT validation)
+                {
+                    builder.UseEnvironment("Testing"); // ← this now controls everything
 
-    builder.ConfigureAppConfiguration((_, config) =>
-    {
-        config.AddInMemoryCollection(new Dictionary<string, string?>
-        {
-            ["JwtTokenSettings:Key"]      = "7zzJSeUi5eL3PfoQt7XieaSsbzIZ3CS5juJNbW4kouJx6Bpdkt",
-            ["JwtTokenSettings:Issuer"]   = "http://localhost:5000",
-            ["JwtTokenSettings:Audience"] = "SoftBridge",
-        });
-    });
+                    builder.ConfigureAppConfiguration((_, config) =>
+                    {
+                        config.AddInMemoryCollection(new Dictionary<string, string?>
+                        {
+                            ["JwtTokenSettings:Key"]      = "7zzJSeUi5eL3PfoQt7XieaSsbzIZ3CS5juJNbW4kouJx6Bpdkt",
+                            ["JwtTokenSettings:Issuer"]   = "http://localhost:5000",
+                            ["JwtTokenSettings:Audience"] = "SoftBridge",
+                            ["TestDbName"]                = DbName,
+                        });
+                    });
 
-    builder.ConfigureServices(services =>
-    {
-        // ✅ Remove the ENTIRE DbContext registration, not just the options
-        var descriptor = services.SingleOrDefault(
-            d => d.ServiceType == typeof(DbContextOptions<ProjectDbContext>));
-        if (descriptor != null)
-            services.Remove(descriptor);
-
-        // Also remove the DbContext itself
-        var contextDescriptor = services.SingleOrDefault(
-            d => d.ServiceType == typeof(ProjectDbContext));
-        if (contextDescriptor != null)
-            services.Remove(contextDescriptor);
-
-        // ✅ Now add a fresh one with InMemory only
-        services.AddDbContext<ProjectDbContext>(opt =>
-            opt.UseInMemoryDatabase("CategoryTestDb_" + Guid.NewGuid()));
-        });
-            }).CreateClient();
+                    // No ConfigureServices manipulation needed anymore
+                }).CreateClient();
     }
 
     // IAsyncLifetime: runs before each test class (nothing to seed here)
@@ -264,7 +249,7 @@ private async Task<string> CreateCategoryAndGetId(string name = "Seed Category")
         await CreateCategoryAndGetId("Machine Learning");
 
         ClearToken();
-        var response = await _client.GetAsync($"{BaseRoute}?name=Mobile");
+        var response = await _client.GetAsync($"{BaseRoute}?search=Mobile");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadAsStringAsync();
@@ -286,7 +271,11 @@ private async Task<string> CreateCategoryAndGetId(string name = "Seed Category")
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var body = JsonDocument.Parse(await response.Content.ReadAsStringAsync()).RootElement;
-        Assert.Equal(id, body.GetProperty("data").GetProperty("id").GetString());
+        
+        // CategoryWithServicesDto has no Id — assert on name instead
+        var data = body.GetProperty("data");
+        Assert.True(data.TryGetProperty("name", out var name), "Response data must contain 'name'");
+        Assert.Equal("Backend Dev", name.GetString());
     }
 
     // ════════════════════════════════════════════════════════════════════════
