@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Identity;
 using SoftBridge.Abstraction.IServices.Auth;
 using SoftBridge.Abstraction.IServicesContract.Notification;
 using SoftBridge.Abstraction.IServicesContract.Token;
+using SoftBridge.Domain.Contracts.UnitOfWorkPattern;
 using SoftBridge.Domain.Exceptions;
+using SoftBridge.Domain.Models.AccountAggregates;
 using SoftBridge.Domain.Models.EnumHelper;
 using SoftBridge.Domain.Models.User;
 using SoftBridge.Services.Services.NotificationImplementation;
@@ -14,7 +16,7 @@ using SoftBridge.Shared.Dto_s.Token;
 
 namespace SoftBridge.Services.Services.AuthImplementation
 {
-    public class AuthService(UserManager<ApplicationUser> _userManager, IMapper _mapper, ITokenService _tokenService ,INotificationService notificationService)
+    public class AuthService(UserManager<ApplicationUser> _userManager, IUnitOfWork _unitOfWork, IMapper _mapper, ITokenService _tokenService ,INotificationService notificationService)
            : IAuthService
     {
         public async Task<AuthModelDto> RegisterAsync(RegisterDto registerDto)
@@ -24,89 +26,36 @@ namespace SoftBridge.Services.Services.AuthImplementation
             if (user != null)
                 throw new BadRequestExceptionCustome("User with this email already exists.");
 
-            // 2 - mapping the data from the DTO to the ApplicationUser model
+            // 2 - Mapping and Create User
             var userForDB = _mapper.Map<ApplicationUser>(registerDto);
-
-            // 3 - Create the user in the database
             var result = await _userManager.CreateAsync(userForDB, registerDto.Password);
 
-            // 4 - Check if the user creation was successful
             if (!result.Succeeded)
             {
-                // If user creation failed, throw an exception with the error details
                 var errors = result.Errors.Select(e => e.Description);
                 throw new BadRequestExceptionCustome("User registration failed", errors);
             }
 
-            // add the user to role
-            if (registerDto.UserType == UserType.Provider)
-                await _userManager.AddToRoleAsync(userForDB, UserType.Provider.ToString());
-            else
-                await _userManager.AddToRoleAsync(userForDB, UserType.Client.ToString());
+            // 3 - Assign Role and Create Profile (Using Helper)
+            await AssignRoleAndCreateProfileAsync(userForDB, registerDto.UserType);
 
-            var userRoles = await _userManager.GetRolesAsync(userForDB);
-            // 5 - Generate Token
-            var tokenRequest = new TokenRequestDto
-            {
-                UserId = userForDB.Id,
-                Email = userForDB!.Email!,
-                UserName = userForDB.FullName,
-                Roles = userRoles
-            };
-            var tokenResponse = await _tokenService.CreateTokenAsync(tokenRequest);
-            if (string.IsNullOrEmpty(tokenResponse.Token))
-                throw new BadRequestExceptionCustome("Token generation failed.");
-
-            // 6 - Return the authentication model with the token and user details
-            return new AuthModelDto
-            {
-                Token = tokenResponse.Token,
-                IsAuthenticated = true,
-                ExpireOn = tokenResponse.ExpireOn,
-                Email = userForDB.Email!,
-                Name = userForDB.FullName,
-                Roles = userRoles
-            };
-
-
+            // 4 - Generate Token and Return (Using Helper)
+            return await GenerateAuthModelAsync(userForDB);
         }
         public async Task<AuthModelDto> LoginAsync(LoginDto loginDto)
         {
-
-            // 1 - Get the user from the database
+            // 1 - Get user
             var user = await _userManager.FindByEmailAsync(loginDto.Email);
-            // 2 - Check if the user exists
             if (user == null)
                 throw new UnauthorizedExceptionCusotme();
 
-            // 3 - Check if the password is correct
-            var result = await _userManager.CheckPasswordAsync(user!, loginDto.Password);
+            // 2 - Check password
+            var result = await _userManager.CheckPasswordAsync(user, loginDto.Password);
             if (!result)
                 throw new UnauthorizedExceptionCusotme();
 
-            // 4 - Generate Token
-            var userRoles = await _userManager.GetRolesAsync(user!);
-            var tokenRequest = new TokenRequestDto
-            {
-                UserId = user!.Id!,
-                Email = user.Email!,
-                UserName = user.FullName,
-                Roles = userRoles
-            };
-            var tokenResp = await _tokenService.CreateTokenAsync(tokenRequest);
-            if (string.IsNullOrEmpty(tokenResp.Token))
-                throw new BadRequestExceptionCustome("Token generation failed.");
-
-            // 5 - Return the authentication model with the token and user details
-            return new AuthModelDto
-            {
-                Token = tokenResp.Token,
-                IsAuthenticated = true,
-                ExpireOn = tokenResp.ExpireOn,
-                Email = user.Email!,
-                Name = user.FullName,
-                Roles = userRoles
-            };
+            // 3 - Generate Token and Return (Using Helper)
+            return await GenerateAuthModelAsync(user);
         }
         public async Task ForgetPasswordAsync(ForgetPasswordDto forgetPasswordDto)
         {
@@ -149,12 +98,10 @@ namespace SoftBridge.Services.Services.AuthImplementation
         }
         public async Task<AuthModelDto> ResetPasswordAsync(ResetPasswordDto resetPasswordDto)
         {
-            // 1 - get the user from the database
             var user = await _userManager.FindByEmailAsync(resetPasswordDto.Email);
             if (user == null)
                 throw new UnauthorizedExceptionCusotme();
 
-            // 2 - change the user password by otp 
             var result = await _userManager.ResetPasswordAsync(user, resetPasswordDto.Otp, resetPasswordDto.NewPassword);
             if (!result.Succeeded)
             {
@@ -162,22 +109,58 @@ namespace SoftBridge.Services.Services.AuthImplementation
                 throw new BadRequestExceptionCustome("Password reset failed.", errors);
             }
 
-            // 3 - generate new token to kept the user login after change password 
+            // Generate Token and Return (Using Helper)
+            return await GenerateAuthModelAsync(user);
+        }
+
+        private async Task AssignRoleAndCreateProfileAsync(ApplicationUser user, UserType userType)
+        {
+            await _userManager.AddToRoleAsync(user, userType.ToString());
+
+            if (userType == UserType.Provider)
+            {
+                var providerRepo = _unitOfWork.GetRepository<SProvider, Guid>();
+                await providerRepo.AddAsync(new SProvider
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = user.Id,
+                    Status = ProviderAccountStatus.Pending
+                });
+            }
+            else
+            {
+                var clientRepo = _unitOfWork.GetRepository<Client, Guid>();
+                await clientRepo.AddAsync(new Client
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = user.Id
+                });
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        private async Task<AuthModelDto> GenerateAuthModelAsync(ApplicationUser user)
+        {
             var userRoles = await _userManager.GetRolesAsync(user);
+
             var tokenRequest = new TokenRequestDto
             {
                 UserId = user.Id,
                 Email = user.Email!,
                 UserName = user.FullName,
-                Roles = userRoles,
+                Roles = userRoles
             };
-            var tokenRespo = await _tokenService.CreateTokenAsync(tokenRequest);
+
+            var tokenResponse = await _tokenService.CreateTokenAsync(tokenRequest);
+            if (string.IsNullOrEmpty(tokenResponse.Token))
+                throw new BadRequestExceptionCustome("Token generation failed.");
 
             return new AuthModelDto
             {
-                Token = tokenRespo.Token,
+                Token = tokenResponse.Token,
                 IsAuthenticated = true,
-                ExpireOn = tokenRespo.ExpireOn,
+                ExpireOn = tokenResponse.ExpireOn,
                 Email = user.Email!,
                 Name = user.FullName,
                 Roles = userRoles
