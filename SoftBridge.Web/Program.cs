@@ -1,4 +1,3 @@
-using PharmaBridge.Web.Extensions;
 using SoftBridge.Persistence.Extensions;
 using SoftBridge.Persistence.ProgramServices;
 using SoftBridge.Services.AutoMapper;
@@ -42,7 +41,10 @@ namespace SoftBridge.Web
             var app = builder.Build();
 
             // Initialization
-            await app.SeedDatabaseAsync();
+            if (!app.Environment.IsEnvironment("Testing"))
+            {
+                await app.SeedDatabaseAsync();
+            }
 
             // Configure the HTTP Request Pipeline
             app.UseMiddleware<GlobalErrorHandlerMiddleware>();
