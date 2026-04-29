@@ -35,11 +35,13 @@ namespace SoftBridge.Services.Services.ServiceManagement
         UserManager<ApplicationUser> _userManager 
         ) : IServiceManagement
     {
-        public async Task<ServiceDto> CreateServiceAsync(CreateServiceDto createServiceDto, Guid providerId)
+        // Provider
+        public async Task<ServiceDto> CreateServiceAsync(CreateServiceDto createServiceDto, Guid userIdFromToken)
         {
+            var applicationUserId = userIdFromToken.ToString();
             // 0. Validate Provider 
-            await ValidateProviderAsync(providerId);
-
+            var ProviderProfile  =  await ValidateandReturnProviderAsync(applicationUserId);
+            var providerId = ProviderProfile.Id;
             // 1. Validate Category Exists and is Active
             await ValidateCategoryAsync(createServiceDto.CategoryId);
 
@@ -63,11 +65,14 @@ namespace SoftBridge.Services.Services.ServiceManagement
             // 6. Return mapped DTO
             return _mapper.Map<ServiceDto>(serviceEntity);
         }
-
-        public async Task<ServiceDto> UpdateServiceAsync(Guid serviceId, UpdateServiceDto updateServiceDto, Guid providerId)
+        // Provider
+        public async Task<ServiceDto> UpdateServiceAsync(Guid serviceId, UpdateServiceDto updateServiceDto, Guid userIdFromToken)
         {
             // 1.Validate Provider
-            await ValidateProviderAsync(providerId);
+            var applicationUserId = userIdFromToken.ToString();
+            // 0. Validate Provider 
+            var ProviderProfile = await ValidateandReturnProviderAsync(applicationUserId);
+            var providerId = ProviderProfile.Id;
             // 2. Get the existing service with its images
             var serviceRepo = _unitOfWork.GetRepository<Service, Guid>();
             var spec = new ServiceByIdWithImagesSpec(serviceId);
@@ -93,7 +98,7 @@ namespace SoftBridge.Services.Services.ServiceManagement
             // 8. Return the updated DTO
             return _mapper.Map<ServiceDto>(existingService);
         }
-       
+        // Provider 
         public async Task<PaginationResponse<ServiceDto>> GetProviderServicesAsync(Guid providerId, ServiceQueryParams queryParams)
         {
             var serviceRepo = _unitOfWork.GetRepository<Service, Guid>();
@@ -120,7 +125,7 @@ namespace SoftBridge.Services.Services.ServiceManagement
                 data
             );
         }
-
+        // Client or Admin
         public async Task<PaginationResponse<ServiceDto>> GetAllServicesAsync(ServiceQueryParams queryParams)
         {
             // to sure that the all services returned was approved
@@ -148,7 +153,7 @@ namespace SoftBridge.Services.Services.ServiceManagement
                 data
             );
         }
-
+        // Admin
         public async Task<bool> ChangeServiceStatusAsync(Guid serviceId, ServiceStatus status, string? rejectionReason = null)
         {
             var serviceRepo = _unitOfWork.GetRepository<Service, Guid>();
@@ -178,7 +183,7 @@ namespace SoftBridge.Services.Services.ServiceManagement
                 await NotifyProviderAboutServiceStatusAsync(service);
             return result;
         }
-
+        // Client or Admin or Provider (if the provider wants to see his own service details)
         public async Task<ServiceDetailsDto> GetServiceDetailsByIdAsync(Guid serviceId)
         {
             var serviceRepo = _unitOfWork.GetRepository<Service, Guid>();
@@ -191,9 +196,13 @@ namespace SoftBridge.Services.Services.ServiceManagement
 
             return _mapper.Map<ServiceDetailsDto>(service);
         }
-
-        public async Task<bool> DeleteServiceAsync(Guid serviceId, Guid providerId)
+        // Provider 
+        public async Task<bool> DeleteServiceAsync(Guid serviceId, Guid userIdFromToken)
         {
+            var applicationUserId = userIdFromToken.ToString();
+            var providerProfile = await ValidateandReturnProviderAsync(applicationUserId);
+            var providerId = providerProfile.Id;
+
             var serviceRepo = _unitOfWork.GetRepository<Service, Guid>();
 
             var spec = new ServiceForDeletionSpec(serviceId);
@@ -225,22 +234,21 @@ namespace SoftBridge.Services.Services.ServiceManagement
         #region Private Helper Methods for create and update services
 
         // guid or userID?
-        private async Task ValidateProviderAsync(Guid providerId)
+        private async Task<SProvider> ValidateandReturnProviderAsync(string userId)
         {
+            var profileSpec = new ProviderProfileByAppUserIdSpec(userId);
+            var provider = await _unitOfWork.GetRepository<SProvider, Guid>().GetByIdWithSpecAsync(profileSpec);
             var providerRepo = _unitOfWork.GetRepository<SProvider, Guid>();
-
-            var spec = new ProviderByIdWithUserSpec(providerId);
-            var provider = await providerRepo.GetByIdWithSpecAsync(spec);
 
             if (provider == null)
                 throw new ProviderNotFoundException($"Provider profile not found.");
 
-            if (provider.User == null || !provider.User.IsActive)
-                throw new UnauthorizedExceptionCusotme();
+            if (!provider.User.IsActive)
+                throw new BadRequestExceptionCustome("Your account is not active. You cannot take this action.");
 
             if (provider.Status != ProviderAccountStatus.Approved)
                 throw new BadRequestExceptionCustome("Your account is not approved yet. You cannot create services until an admin approves your profile.");
-
+            return provider;
         }
         private async Task ValidateCategoryAsync(Guid categoryId)
         {
