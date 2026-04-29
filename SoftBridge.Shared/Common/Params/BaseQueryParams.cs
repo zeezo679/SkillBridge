@@ -19,7 +19,7 @@ namespace SoftBridge.Shared.Common.Params
             set => _pageSize = (value > MaxPageSize) ? MaxPageSize : value;
         }
 
-        public string? _search { get; set; }
+        private string? _search;
         public string? Search
         {
             get => _search;

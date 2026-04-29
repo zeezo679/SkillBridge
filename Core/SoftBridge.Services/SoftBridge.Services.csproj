@@ -21,6 +21,5 @@
 		<Folder Include="Services/Chat/" />
 		<Folder Include="Specification/ChatSpecifications/" />
 		<Folder Include="Specification/ClientSpecification/" />
-		<Folder Include="Specification\" />
 	</ItemGroup>
 </Project>
