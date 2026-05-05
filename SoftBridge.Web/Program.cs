@@ -23,6 +23,7 @@ namespace SoftBridge.Web
             builder.Services.AddDataProtection();
             // Add JWT Authentication and CORS configuration
             builder.Services.AddJwtAuthentication(builder.Configuration, builder.Environment);
+            builder.Services.AddAuthorization();
             builder.Services.AddCustomCors(builder.Configuration);
 
             // 3. Application Services & AutoMapper
@@ -57,6 +58,7 @@ namespace SoftBridge.Web
             app.UseStaticFiles();
 
             app.UseRouting();
+            app.UseRateLimiter();
 
             // CORS MUST be placed between UseRouting and UseAuthentication
             app.UseCors("CorsPolicy");
