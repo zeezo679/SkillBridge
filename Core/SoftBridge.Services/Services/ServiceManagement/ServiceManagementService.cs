@@ -128,9 +128,6 @@ namespace SoftBridge.Services.Services.ServiceManagement
         // Client or Admin
         public async Task<PaginationResponse<ServiceDto>> GetAllServicesAsync(ServiceQueryParams queryParams)
         {
-            // to sure that the all services returned was approved
-            queryParams.Status = ServiceStatus.Approved;
-
             var serviceRepo = _unitOfWork.GetRepository<Service, Guid>();
 
             // 1.spec for data
@@ -346,6 +343,9 @@ namespace SoftBridge.Services.Services.ServiceManagement
                 NotificationType.Email
             );
         }
+
+        public Task<PaginationResponse<ServiceDto>> GetAdminServicesAsync(ServiceQueryParams queryParams)
+            => GetAllServicesAsync(queryParams);
         #endregion
 
     }

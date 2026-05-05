@@ -26,6 +26,7 @@ namespace SoftBridge.Abstraction.IServicesContract.Services
         Task<ServiceDetailsDto> GetServiceDetailsByIdAsync(Guid serviceId);
 
         // --- Admin Operations ---
+        Task<PaginationResponse<ServiceDto>> GetAdminServicesAsync(ServiceQueryParams queryParams);
         Task<bool> ChangeServiceStatusAsync(Guid serviceId, ServiceStatus status, string? rejectionReason = null);
     }
 }

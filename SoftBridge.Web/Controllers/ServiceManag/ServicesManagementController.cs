@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SoftBridge.Abstraction.IServicesContract.Services;
+using SoftBridge.Domain.Models.EnumHelper;
 using SoftBridge.Shared.Common.Dto.Service;
 using SoftBridge.Shared.Common.Params.Service;
 using System.Security.Claims;
@@ -22,6 +23,9 @@ namespace SoftBridge.Web.Controllers.ServiceManag
         [Tags("1. Public Services")] 
         public async Task<IActionResult> GetAllServices([FromQuery] ServiceQueryParams queryParams)
         {
+            var isAdmin = User?.Identity?.IsAuthenticated == true && User.IsInRole("Admin");
+            if (!isAdmin)
+                queryParams.Status = ServiceStatus.Approved;
             var result = await serviceManagement.GetAllServicesAsync(queryParams);
             return Success(result, "Services retrieved successfully");
         }
@@ -81,6 +85,15 @@ namespace SoftBridge.Web.Controllers.ServiceManag
         // ==========================================
         // 3. (Admin Operations)
         // ==========================================
+
+        [HttpGet("admin")]
+        [Authorize(Roles = "Admin")]
+        [Tags("3. Admin Services")]
+        public async Task<IActionResult> GetAdminServices([FromQuery] ServiceQueryParams queryParams)
+        {
+            var result = await serviceManagement.GetAdminServicesAsync(queryParams);
+            return Success(result, "Services retrieved successfully");
+        }
 
         [HttpPatch("{id:guid}/status")]
         [Authorize(Roles = "Admin")]

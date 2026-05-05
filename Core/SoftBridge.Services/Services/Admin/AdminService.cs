@@ -24,11 +24,13 @@ public class AdminService(IUnitOfWork unitOfWork, IMapper mapper , INotification
     public async Task ApproveProviderAsync(string userId, string adminId)
     {
         var provider = await GetValidatedProviderHelper(userId);
+        var providerRepo = _unitOfWork.GetRepository<SProvider, Guid>();
 
         provider.Status = ProviderAccountStatus.Approved;
         provider.ApprovedAt = DateTime.UtcNow;
         provider.ApproveByAdminId = adminId;
 
+        providerRepo.Update(provider);
         await _unitOfWork.SaveChangesAsync();
 
         var notificationMessage = new NotificationContentDto
@@ -78,10 +80,12 @@ public class AdminService(IUnitOfWork unitOfWork, IMapper mapper , INotification
     public async Task RejectProviderAsync(string userId, string adminId)
     {
         var provider = await GetValidatedProviderHelper(userId);
+        var providerRepo = _unitOfWork.GetRepository<SProvider, Guid>();
 
         provider.Status = ProviderAccountStatus.Rejected;
         provider.ApprovedAt = null;
         provider.ApproveByAdminId = null;
+        providerRepo.Update(provider);
         await _unitOfWork.SaveChangesAsync();
 
         var notificationMessage = new NotificationContentDto
