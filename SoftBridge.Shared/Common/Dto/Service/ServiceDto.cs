@@ -11,6 +11,7 @@ public class ServiceDto
     public string Title { get; set; } = string.Empty;
     public decimal Price { get; set; }
     public float AverageRating { get; set; }
+    public string Status { get; set; } = string.Empty;
 
     // one image only 
     public string ThumbnailUrl { get; set; } = string.Empty;

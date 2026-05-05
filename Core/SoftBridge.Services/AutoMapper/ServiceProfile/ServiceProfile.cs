@@ -21,6 +21,7 @@ public class ServiceMappingProfile : Profile
 
         // 2. (ServiceDto)
         CreateMap<Service, ServiceDto>()
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
             .ForMember(dest => dest.ThumbnailUrl, opt =>
                 opt.MapFrom<PictureUrlResolver<Service, ServiceDto>, string>(
                     // we need to send the protofolio image only 
