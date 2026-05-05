@@ -26,6 +26,9 @@ using SoftBridge.Services.Services.ServiceManagement;
 using SoftBridge.Services.Services.ServiceProviderImplementation;
 using SoftBridge.Services.Services.Token;
 using SoftBridge.Shared.Common.Dto.Notification.Settings;
+using SoftBridge.Services.Services.RequestImplementation;
+using SoftBridge.Abstraction.IServicesContract.Request;
+
 
 namespace SoftBridge.Web.Extensions
 {
@@ -56,6 +59,7 @@ namespace SoftBridge.Web.Extensions
             services.AddScoped<IProviderProfileService, ServiceProviderService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IReviewService, ReviewService>();
+            services.AddScoped<IRequestWorkflowService, RequestService>();
 
             // 4. transient services : because they are used in resolvers and we want a new instance each time
             // and the class is too small to be scoped or singleton it take string and return string so it is better to be transient

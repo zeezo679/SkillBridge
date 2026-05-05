@@ -103,17 +103,13 @@ namespace SoftBridge.Services.Services.RequestImplementation
         {
             var requestRepo = _unitOfWork.GetRepository<ServiceRequest, Guid>();
 
-            // run both queries in parallel — data page and total count
             var dataSpec = new ClientRequestsSpec(clientId, queryParams);
             var countSpec = new ClientRequestsCountSpec(clientId, queryParams);
 
-            var dataTask = requestRepo.GetAllWithSpecAsync(dataSpec);
-            var countTask = requestRepo.GetCountAsync(countSpec);
+            var requests = await requestRepo.GetAllWithSpecAsync(dataSpec);
+            var count = await requestRepo.GetCountAsync(countSpec);
 
-            await Task.WhenAll(dataTask, countTask);
-
-            var data = _mapper.Map<IReadOnlyList<RequestDto>>(dataTask.Result);
-            var count = countTask.Result;
+            var data = _mapper.Map<IReadOnlyList<RequestDto>>(requests);
 
             return new PaginationResponse<RequestDto>(
                 queryParams.PageIndex,
@@ -130,13 +126,10 @@ namespace SoftBridge.Services.Services.RequestImplementation
             var dataSpec = new ProviderRequestsSpec(providerId, queryParams);
             var countSpec = new ProviderRequestsCountSpec(providerId, queryParams);
 
-            var dataTask = requestRepo.GetAllWithSpecAsync(dataSpec);
-            var countTask = requestRepo.GetCountAsync(countSpec);
+            var requests = await requestRepo.GetAllWithSpecAsync(dataSpec);
+            var count = await requestRepo.GetCountAsync(countSpec);
 
-            await Task.WhenAll(dataTask, countTask);
-
-            var data = _mapper.Map<IReadOnlyList<RequestDto>>(dataTask.Result);
-            var count = countTask.Result;
+            var data = _mapper.Map<IReadOnlyList<RequestDto>>(requests);
 
             return new PaginationResponse<RequestDto>(
                 queryParams.PageIndex,
@@ -277,13 +270,10 @@ namespace SoftBridge.Services.Services.RequestImplementation
             var dataSpec = new AllPlatformRequestsSpec(queryParams);
             var countSpec = new AllPlatformRequestsCountSpec(queryParams);
 
-            var dataTask = requestRepo.GetAllWithSpecAsync(dataSpec);
-            var countTask = requestRepo.GetCountAsync(countSpec);
+            var requests = await requestRepo.GetAllWithSpecAsync(dataSpec);
+            var count = await requestRepo.GetCountAsync(countSpec);
 
-            await Task.WhenAll(dataTask, countTask);
-
-            var data = _mapper.Map<IReadOnlyList<RequestDto>>(dataTask.Result);
-            var count = countTask.Result;
+            var data = _mapper.Map<IReadOnlyList<RequestDto>>(requests);
 
             return new PaginationResponse<RequestDto>(
                 queryParams.PageIndex,
