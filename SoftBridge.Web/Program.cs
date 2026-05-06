@@ -15,7 +15,7 @@ namespace SoftBridge.Web
             var builder = WebApplication.CreateBuilder(args);
 
             // 1. Database & Infrastructure
-            builder.Services.InjectDatabaseService(builder.Configuration);
+            builder.Services.InjectDatabaseService(builder.Configuration, builder.Environment);
 
             // 2. Identity & Security
             builder.Services.InjectIdentityCore();
@@ -42,7 +42,10 @@ namespace SoftBridge.Web
             var app = builder.Build();
 
             // Initialization
-            await app.SeedDatabaseAsync();
+            if (!app.Environment.IsEnvironment("Testing"))
+            {
+                await app.SeedDatabaseAsync();
+            }
 
             // Configure the HTTP Request Pipeline
             app.UseMiddleware<GlobalErrorHandlerMiddleware>();

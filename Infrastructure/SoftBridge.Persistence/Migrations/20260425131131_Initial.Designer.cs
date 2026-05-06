@@ -12,8 +12,8 @@ using SoftBridge.Persistence;
 namespace SoftBridge.Persistence.Migrations
 {
     [DbContext(typeof(ProjectDbContext))]
-    [Migration("20260418161408_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260425131131_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

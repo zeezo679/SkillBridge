@@ -1,4 +1,5 @@
 using System;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SoftBridge.Abstraction.IServices.Category;
 using SoftBridge.Domain.Models.ServiceAggregates;
@@ -27,6 +28,7 @@ public class CategoryController(ICategoryService categoryService) : AppBaseContr
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromBody] CategoryToCreateDto categoryDto)
     {
         var result = await categoryService.CreateCategoryAsync(categoryDto);
@@ -34,6 +36,7 @@ public class CategoryController(ICategoryService categoryService) : AppBaseContr
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(Guid id, [FromBody] CategoryToUpdateDto categoryDto)
     {
         var result = await categoryService.UpdateCategoryAsync(id, categoryDto);
@@ -41,6 +44,7 @@ public class CategoryController(ICategoryService categoryService) : AppBaseContr
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(Guid id)
     {
         await categoryService.DeleteCategoryAsync(id);

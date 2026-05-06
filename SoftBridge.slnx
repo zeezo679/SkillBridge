@@ -8,6 +8,9 @@
     <Project Path="Infrastructure/SoftBridge.Persistence/SoftBridge.Persistence.csproj" />
     <Project Path="Infrastructure/SoftBridge.Presentation/SoftBridge.Presentation.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SkillBridge.API.Tests/SkillBridge.API.Tests.csproj" />
+  </Folder>
   <Project Path="SoftBridge.Shared/SoftBridge.Shared.csproj" />
   <Project Path="SoftBridge.Web/SoftBridge.Web.csproj" />
 </Solution>
